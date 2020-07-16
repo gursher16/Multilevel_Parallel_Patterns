@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import standrews.cs5099.mpp.core.TaskExecutor;
 import standrews.cs5099.mpp.core.WorkerService;
 import standrews.cs5099.mpp.instructions.Instruction;
 import standrews.cs5099.mpp.instructions.InstructionsBuilder;
@@ -20,10 +21,10 @@ import standrews.cs5099.mpp.skeletons.Skeleton;
  */
 public class TaskScheduler<I, O> {
 
-	private ExecutorService taskExecutor;
+	private TaskExecutor taskExecutor;
 	private Skeleton<I, O> targetSkeleton;
 
-	public TaskScheduler(Skeleton<I, O> targetSkeleton, ExecutorService taskExecutor) {
+	public TaskScheduler(Skeleton<I, O> targetSkeleton, TaskExecutor taskExecutor) {
 		this.targetSkeleton = targetSkeleton;
 		this.taskExecutor = taskExecutor;
 	}
@@ -50,15 +51,28 @@ public class TaskScheduler<I, O> {
 	public Future<O> scheduleNewTaskForExecutionPipeLine(I inputParam) {
 		
 		
-		List<PipelineTask> taskList = new ArrayList<>();
+		List<PipelineWorker> taskList = new ArrayList<>();
 		InstructionsBuilder instructionsBuilder = new InstructionsBuilder();
 		targetSkeleton.buildInstructions(instructionsBuilder);
+		TaskBuilder taskBuilder = new TaskBuilder(taskExecutor, instructionsBuilder.getInstructionsStack());
+		PipelineWorker[] workers = taskBuilder.buildSkeleton();
+		
+		if(inputParam instanceof Collection) {
+			for(Object O : (Collection)inputParam) {
+				workers[0].setData(O);
+				this.taskExecutor.submit(workers[0]);				
+			}			
+		}
+		
+		
+		
+		
 		
 		// create and execute new task for pipelined
 		for(int i = 0; i<instructionsBuilder.getInstructionsStack().size(); i++) {
 			Instruction ins = instructionsBuilder.getInstructionsStack().get(i);
-			PipelineTask task = new PipelineTask(inputParam, taskExecutor, ins);
-			taskList.add(task);
+			//PipelineWorker task = new PipelineWorker(inputParam, taskExecutor, ins);
+			//taskList.add(task);
 			//this.taskExecutor.execute(task);
 		}
 		// set tasks in worker service

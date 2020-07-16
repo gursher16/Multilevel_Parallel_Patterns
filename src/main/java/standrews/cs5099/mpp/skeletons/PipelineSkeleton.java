@@ -36,7 +36,7 @@ public class PipelineSkeleton<I, O> implements Skeleton<I, O> {
 	/*
 	 * Constructor for more than two stages
 	 */
-	public <E> PipelineSkeleton(Skeleton<I, E>[] stages) {
+	public <E> PipelineSkeleton(Skeleton<?, ?>[] stages) {
 		this(stages, null, null);
 	}
 

@@ -1,5 +1,6 @@
 package standrews.cs5099.mpp.instructions;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
@@ -20,19 +21,29 @@ public class InstructionsBuilder {
 
 	// Stac
 	private Stack<Instruction> instructionStack;
+	// contains list of instructions stacks for skeletons
 	private List<Stack<Instruction>> instructionStackList;
+
 	public InstructionsBuilder() {
 		this.instructionStack = new Stack<>();
-		this.instructionStackList = null;
+		this.instructionStackList = new ArrayList<>();
 	}
 
 	/**
-	 * Traverse a PipelineSkeleton
+	 * Traverse a PipelineSkeleton and build instructions
 	 * 
 	 * @param <I>
 	 * @param <O>
 	 */
 	public <I, O> void traverse(PipelineSkeleton<I, O> pipelineSkeleton) {
+		/**
+		// Signals start of pipeline
+		PipelineInstruction pipeLineBegin = new PipelineInstruction(false);
+		// Signals end of pipeline
+		PipelineInstruction pipeLineEnd = new PipelineInstruction(true);
+		//	link pipeline instructions 
+		pipeLineBegin.linkPipelineInstruction(pipeLineEnd);
+		**/
 
 		if (pipelineSkeleton.getaHasMultipleStages()) {
 			Stack<Instruction> tempStack = new Stack<>();
@@ -51,31 +62,34 @@ public class InstructionsBuilder {
 			InstructionsBuilder firstStageBuilder = new InstructionsBuilder();
 			InstructionsBuilder lastStageBuilder = new InstructionsBuilder();
 			
-			//traverse both stages to create instruction stack
+			// push pipeline end instruction
+			// instructionStack.push(pipeLineEnd);
+			
+									
+			// traverse both stages to create instruction stack
 			pipelineSkeleton.getFirstStage().buildInstructions(firstStageBuilder);
 			pipelineSkeleton.getLastStage().buildInstructions(lastStageBuilder);
-			
-			//add pipelineEnd instruction 
+
 			
 			// add last stage first
 			instructionStack.addAll(lastStageBuilder.getInstructionsStack());
 			// first stage should be top of the stack
 			instructionStack.addAll(firstStageBuilder.getInstructionsStack());
-			
-			// add pipelineBegin instruction
-			
+			// push pipeline begin instruction
+			//instructionStack.push(pipeLineBegin);
+
 		}
 	}
-	
-	public <I,O> void traverse(SequentialOpSkeleton<I, O> seqOpSkeleton) {
+
+	public <I, O> void traverse(SequentialOpSkeleton<I, O> seqOpSkeleton) {
 		instructionStack.push(new SequentialOpInstruction(seqOpSkeleton.getSequentialOperation()));
 	}
-	
-	public <I,O> void traverse(FarmSkeleton<I, O> farmSkeleton) {
-		
+
+	public <I, O> void traverse(FarmSkeleton<I, O> farmSkeleton) {
+
 	}
-	
-	public Stack<Instruction> getInstructionsStack(){
+
+	public Stack<Instruction> getInstructionsStack() {
 		return instructionStack;
 	}
 }

@@ -16,10 +16,10 @@ import standrews.cs5099.mpp.tasks.TaskScheduler;
 public class MPP {
 
 	// Responsible for executing tasks in a thread pool
-	private ExecutorService taskExecutor;
+	private TaskExecutor taskExecutor;
 
 	// Responsible for executing tasks in a work stealing thread pool
-	private ExecutorService workStealingExecutor;
+	//private ExecutorService workStealingExecutor;
 
 	// The number of threads in the thread pool
 	private int noOfCores;
