@@ -1,12 +1,22 @@
 package standrews.cs5099.mpp.tasks;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.PriorityQueue;
+import java.util.Stack;
+import java.util.TreeSet;
+import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import standrews.cs5099.mpp.core.TaskExecutor;
+import standrews.cs5099.mpp.core.WorkerService;
+import standrews.cs5099.mpp.instructions.Instruction;
 
 /**
  * Wrapper for all workers
@@ -55,7 +65,7 @@ public class RootWorker<O> extends Worker {
 	@Override
 	public void run() {
 		System.out.println("MAIN WORKER INITIATED");
-		createInstanceOfResult();
+		WorkerService.createInstanceOfResult(outputType);
 		executeSkeleton();
 		// WorkerService.executeTask(this);
 		/**
@@ -103,7 +113,31 @@ public class RootWorker<O> extends Worker {
 				iter+=1;
 				workers[0].setData(o);
 				// start top level worker in skeleton (which will invoke subsequent workers)
+				
+				///2nd approach////
+				
+				
+				/*
+				if(taskExecutor.getActiveCount()<taskExecutor.getCorePoolSize()) {
+					this.taskExecutor.execute(workers[0]);					
+				}
+				else {
+					try {
+						synchronized (this) {
+							wait();
+						}
+						
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					this.taskExecutor.execute(workers[0]);
+				}
+				*/
 				this.taskExecutor.execute(workers[0]);
+				
+				/**
+				 * 	1st approach
 				try {
 					// block and get result of last worker (which is effectively the result of the
 					// skeleton)
@@ -119,9 +153,14 @@ public class RootWorker<O> extends Worker {
 				} catch (ExecutionException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
+				} 
+				
+				
+				
+				****/
 			}
-			skelFuture.setResult(result);
+			
+			skelFuture.setResult(WorkerService.fetchResult());
 		}
 		this.isFinished = true;
 	}
@@ -134,23 +173,23 @@ public class RootWorker<O> extends Worker {
 		
 		if (outputType.equals(ArrayList.class)) {
 			result = new ArrayList<Object>();
-		} /*else if (resultType instanceof LinkedList) {
+		} else if (outputType.equals(LinkedList.class)) {
 			result = new LinkedList<Object>();
-		} else if (resultType instanceof Vector) {
+		} else if (outputType.equals(Vector.class)) {
 			result = new Vector<Object>();
-		} else if (resultType instanceof Stack) {
+		} else if (outputType.equals(Stack.class)) {
 			result = new Stack<Object>();
-		} else if (resultType instanceof PriorityQueue) {
+		} else if (outputType.equals(PriorityQueue.class)) {
 			result = new PriorityQueue<Object>();
-		} else if (resultType instanceof ArrayDeque) {
+		} else if (outputType.equals(ArrayDeque.class)) {
 			result = new ArrayDeque<>();
-		} else if (resultType instanceof HashSet) {
+		} else if (outputType.equals(HashSet.class)) {
 			result = new HashSet<Object>();
-		} else if (resultType instanceof LinkedHashSet) {
+		} else if (outputType.equals(LinkedHashSet.class)) {
 			result = new LinkedHashSet<Object>();
-		} else if (resultType instanceof TreeSet) {
+		} else if (outputType.equals(TreeSet.class)) {
 			result = new TreeSet<Object>();
-		}*/
+		}
 
 	}
 	
@@ -188,6 +227,12 @@ public class RootWorker<O> extends Worker {
 	public synchronized boolean areChildTasksFinished() {
 		// dummy value
 		return true;
+	}
+
+	@Override
+	public Instruction getInstruction() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	

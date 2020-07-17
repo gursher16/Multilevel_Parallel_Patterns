@@ -21,15 +21,15 @@ public class StagedComputation {
 		
 		MPP mpp = new MPP();
 		//int size = (int)Math.pow(2, 12);
-		int size = 1000;
-		List<Double> in = generate(size);
+		int size = 10;
+		List<Integer> in = generate(size);
 		//List<Integer> out;
 		
 		// create first pipeline skeleton
 		Operation o1 = new Operation1();
 		Operation o2 = new Operation2();
-		Skeleton firstStage = new SequentialOpSkeleton(o1, Double.class);
-		Skeleton lastStage = new SequentialOpSkeleton<Double, Double>(o2, Double.class);
+		Skeleton firstStage = new SequentialOpSkeleton(o1, Integer.class);
+		Skeleton lastStage = new SequentialOpSkeleton<Integer, Integer>(o2, Integer.class);
 		Skeleton skel1 = new PipelineSkeleton(firstStage, lastStage, ArrayList.class);
 		
 		
@@ -62,15 +62,15 @@ public class StagedComputation {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		System.out.println("FINISHED");
 		
 	}
 	
-	public static List<Double> generate(int size){
+	public static List<Integer> generate(int size){
         
 		Random random = new Random();
-		ArrayList<Double> array = new ArrayList<Double>();
-		/*
+		ArrayList<Integer> array = new ArrayList<Integer>();
+		
 		array.add(738);
 		array.add(591);
 		array.add(129);
@@ -81,11 +81,11 @@ public class StagedComputation {
 		array.add(170);
 		array.add(417);
 		array.add(26);
-		*/
 		
+		/*
 		for(int i=0;i<size;i++){
 			array.add(i, random.nextDouble());
-		}
+		}*/
 
 		return array;
 	}

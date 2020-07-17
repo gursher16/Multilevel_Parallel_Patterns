@@ -5,10 +5,10 @@ import java.util.List;
 
 import standrews.cs5099.mpp.operations.Operation;
 
-public class Operation1 implements Operation<Double, Double> {
+public class Operation1 implements Operation<Integer, Integer> {
 
 	@Override
-	public Double execute(Double inputParam) throws Exception {
+	public Integer execute(Integer inputParam) throws Exception {
 		/*
 		List<Integer> tempList = new ArrayList<>();
 		// usage of streams are possible

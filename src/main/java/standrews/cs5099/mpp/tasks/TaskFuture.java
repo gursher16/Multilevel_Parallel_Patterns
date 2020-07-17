@@ -81,8 +81,14 @@ public class TaskFuture<V> implements Future<V> {
 	public synchronized void setResult(V result) {
 		// set result and notify all waiting threads
 		this.result = result;
+		// wake all waiting threads
 		notifyAll();
 	}
+	
+	/*
+	public synchronized void wakeRootWorker() {
+		notifyAll();
+	}*/
 
 	@Override
 	public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {

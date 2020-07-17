@@ -20,7 +20,7 @@ public class PipelineWorker<O> extends Worker{
 	// Parent Worker (pipeline stage)
 	private PipelineWorker parentWorker;
 	// Root Worker
-	private PipelineWorker rootWorker;
+	private RootWorker rootWorker;
 	
 	private PipelineWorker childWorker;
 
@@ -41,7 +41,7 @@ public class PipelineWorker<O> extends Worker{
 	 */
 	public PipelineWorker(ExecutorService taskExecutor, Instruction instruction) {
 		
-		this.rootWorker = this;
+		//this.rootWorker = this;
 		this.taskExecutor = (TaskExecutor) taskExecutor;
 		this.instruction = instruction;
 		this.taskFuture = new TaskFuture(this.taskExecutor, this);
@@ -101,11 +101,15 @@ public class PipelineWorker<O> extends Worker{
 					this.childWorker.setData(this.taskFuture);
 					// invoke next worker
 					taskExecutor.execute(this.childWorker);
+					this.taskFuture.setResult(WorkerService.executePipelineWorker(this));
 				}
 				else { /* CURRENT WORKER IS LAST WORKER IN PIPELINE*/
-					
+					// call special method which executes and stores result in a Collection
+					WorkerService.executeAndCollectResult(this);
+					// wake up any waiting root worker
+					//this.getRootWorker().getFuture().wakeRootWorker();
 				}
-				this.taskFuture.setResult(WorkerService.executePipelineWorker(this));
+				//this.taskFuture.setResult(WorkerService.executePipelineWorker(this));
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -155,7 +159,7 @@ public class PipelineWorker<O> extends Worker{
 
 	public TaskFuture getFuture() {
 
-		return rootWorker.taskFuture;
+		return this.taskFuture;
 	}
 
 	public PipelineWorker getParentWorker() {
@@ -180,11 +184,11 @@ public class PipelineWorker<O> extends Worker{
 		this.data = data;
 	}
 
-	public PipelineWorker getRootWorker() {
+	public RootWorker getRootWorker() {
 		return rootWorker;
 	}
 
-	public void setRootWorker(PipelineWorker rootWorker) {
+	public void setRootWorker(RootWorker rootWorker) {
 		this.rootWorker= rootWorker;
 	}
 	
