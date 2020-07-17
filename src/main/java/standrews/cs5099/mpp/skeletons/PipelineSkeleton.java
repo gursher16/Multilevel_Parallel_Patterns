@@ -22,22 +22,24 @@ public class PipelineSkeleton<I, O> implements Skeleton<I, O> {
 	private Skeleton<?, O> lastStage;
 	// set of stages including first and last stage
 	private Skeleton<?, ?>[] stages;
+	
+	public Class<O> outputType;
 
 	private boolean hasMultipleStages;
 
 	/*
 	 * Constructor for exactly two stages (minimum)
 	 */
-	public <E> PipelineSkeleton(Skeleton<I, E> firstStage, Skeleton<E, O> lastStage) {
+	public <E> PipelineSkeleton(Skeleton<I, E> firstStage, Skeleton<E, O> lastStage, Class<O> outputType) {
 
-		this(null, firstStage, lastStage);
+		this(null, firstStage, lastStage, outputType);
 	}
 
 	/*
 	 * Constructor for more than two stages
 	 */
-	public <E> PipelineSkeleton(Skeleton<?, ?>[] stages) {
-		this(stages, null, null);
+	public <E> PipelineSkeleton(Skeleton<?, ?>[] stages, Class<O> outputType) {
+		this(stages, null, null, outputType);
 	}
 
 	/**
@@ -49,8 +51,8 @@ public class PipelineSkeleton<I, O> implements Skeleton<I, O> {
 	 * @param lastStage
 	 */
 	@SuppressWarnings("unchecked")
-	public <E> PipelineSkeleton(Skeleton<?, ?>[] stages, Skeleton<I, E> firstStage, Skeleton<E, O> lastStage) {
-
+	public <E> PipelineSkeleton(Skeleton<?, ?>[] stages, Skeleton<I, E> firstStage, Skeleton<E, O> lastStage, Class<O> outputType) {
+		this.outputType = outputType;
 		if (null != firstStage && null != lastStage) {
 			this.firstStage = firstStage;
 			this.lastStage = lastStage;
@@ -97,6 +99,11 @@ public class PipelineSkeleton<I, O> implements Skeleton<I, O> {
 	public void buildInstructions(InstructionsBuilder instructionsBuilder) {
 		instructionsBuilder.traverse(this);
 		
+	}
+	
+	@Override
+	public Class<O> getOutputType() {
+		return outputType;
 	}
 
 }

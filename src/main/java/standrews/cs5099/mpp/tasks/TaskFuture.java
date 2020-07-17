@@ -18,6 +18,7 @@ public class TaskFuture<V> implements Future<V> {
 
 	private TaskExecutor taskExecutor;
 	private PipelineWorker task;
+	private RootWorker rootworker;
 	private V result;
 	private boolean isCancelled;
 
@@ -25,6 +26,11 @@ public class TaskFuture<V> implements Future<V> {
 		// TODO Auto-generated constructor stub
 		this.taskExecutor = taskExecutor;
 		this.task = task;
+	}
+	
+	public TaskFuture(TaskExecutor taskExecutor, RootWorker rootWorker) {
+		this.taskExecutor = taskExecutor;
+		this.rootworker = rootWorker;
 	}
 
 	@Override

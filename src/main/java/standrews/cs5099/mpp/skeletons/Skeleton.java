@@ -31,4 +31,7 @@ public interface Skeleton<I, O> {
 	// public Future<O>[] executeTask(I[] inputTasks);
 	
 	public void buildInstructions(InstructionsBuilder instructionsBuilder);
+	
+	public Class<O> getOutputType();
+	
 }

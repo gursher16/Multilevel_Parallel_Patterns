@@ -4,9 +4,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import standrews.cs5099.mpp.tasks.MPPTask;
 import standrews.cs5099.mpp.tasks.PipelineWorker;
-
+import standrews.cs5099.mpp.tasks.Worker;
 /**
  * Wrapper class for configuring behaviour of the ExecutorService
  * 
@@ -31,14 +30,17 @@ public class TaskExecutor extends ThreadPoolExecutor {
 
 	@Override
 	protected void afterExecute(Runnable r, Throwable t) {
-		/** best practice? **/
-		/*
-		super.afterExecute(r, t);
-		PipelineWorker task = (PipelineWorker) r;
-		if (task.isTaskFinished()) {
-			WorkerService.notifyParent(task);
-		}*/
-
+		Worker worker = (Worker)r;
+		if(worker instanceof PipelineWorker) {
+			// using isFinished boolean
+			if(worker.isFinished) {
+				//((PipelineWorker) worker).getFuture().setResult(null);
+			}
+			
+			
+			// using isFinished() of future
+		}
+		
 	}
 
 }

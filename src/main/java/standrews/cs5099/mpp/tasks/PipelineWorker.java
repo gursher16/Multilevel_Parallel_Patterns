@@ -6,11 +6,13 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
+import javax.swing.text.AbstractWriter;
+
 import standrews.cs5099.mpp.core.TaskExecutor;
 import standrews.cs5099.mpp.core.WorkerService;
 import standrews.cs5099.mpp.instructions.Instruction;
 
-public class PipelineWorker implements Runnable, Comparable<PipelineWorker> {
+public class PipelineWorker<O> extends Worker{
 
 	// Actual data to be executed by the worker
 	private Object data;
@@ -28,6 +30,8 @@ public class PipelineWorker implements Runnable, Comparable<PipelineWorker> {
 	private TaskFuture taskFuture;
 	// Execution to be executed by the Worker
 	private Instruction instruction;
+	
+			
 
 	/**
 	 * Constructor for Root Worker
@@ -42,6 +46,8 @@ public class PipelineWorker implements Runnable, Comparable<PipelineWorker> {
 		this.instruction = instruction;
 		this.taskFuture = new TaskFuture(this.taskExecutor, this);
 		this.childWorker = null;
+		this.priority = 10000;
+		this.isFinished = false;
 	}
 
 	/**
@@ -73,27 +79,32 @@ public class PipelineWorker implements Runnable, Comparable<PipelineWorker> {
 	public void run() {
 		Object result = null;
 		if(this.isRootPipelineWorker()) {
-			System.out.println("Wow root task is being executed");
+			System.out.println("Wow parent task is being executed");
 			// link output of current worker to input of next worker
 			this.childWorker.setData(this.taskFuture);
 			// invoke next worker
 			taskExecutor.execute(this.childWorker);			
 			// set result of execution in future
-			this.taskFuture.setResult(WorkerService.executePipelineWorker(this));		
-			
+			this.taskFuture.setResult(WorkerService.executePipelineWorker(this));	
+						
 		}
 		else {
 			System.out.println("Wow child task is being executed");
 			try {
 				// block till parent worker gives result
 				data = this.parentWorker.getFuture().get();
+				// free parent worker's future once result is obtained
+				this.parentWorker.getFuture().setResult(null);
 				// if current worker has child
 				if(null!=this.childWorker) {
 					// link output of current worker with input of next worker
 					this.childWorker.setData(this.taskFuture);
 					// invoke next worker
 					taskExecutor.execute(this.childWorker);
-				}				
+				}
+				else { /* CURRENT WORKER IS LAST WORKER IN PIPELINE*/
+					
+				}
 				this.taskFuture.setResult(WorkerService.executePipelineWorker(this));
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -120,7 +131,7 @@ public class PipelineWorker implements Runnable, Comparable<PipelineWorker> {
 		 **/
 		
 		//return null;
-		
+		this.isFinished = true;
 	}
 	/*
 	@Override
@@ -215,12 +226,6 @@ public class PipelineWorker implements Runnable, Comparable<PipelineWorker> {
 
 	public void setInstruction(Instruction instruction) {
 		this.instruction= instruction;
-	}
-
-	@Override
-	public int compareTo(PipelineWorker o) {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 	
 }

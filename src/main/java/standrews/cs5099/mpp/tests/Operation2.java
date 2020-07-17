@@ -5,10 +5,10 @@ import java.util.List;
 
 import standrews.cs5099.mpp.operations.Operation;
 
-public class Operation2 implements Operation<Integer, Integer> {
+public class Operation2 implements Operation<Double, Double> {
 
 	@Override
-	public Integer execute(Integer inputParam) throws Exception {
+	public Double execute(Double inputParam) throws Exception {
 		/**
 		List<Integer> tempList = new ArrayList<>();
 		for (Integer i : inputParam) {
@@ -17,7 +17,8 @@ public class Operation2 implements Operation<Integer, Integer> {
 		}
 		**/
 		//inputParam = null;
-		inputParam = inputParam * 10;
+		//inputParam = inputParam * 2.12345;
+		System.out.println("INPUT_PARAM OP2: " + inputParam);
 		return inputParam;
 	}
 

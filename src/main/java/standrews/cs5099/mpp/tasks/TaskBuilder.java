@@ -128,6 +128,7 @@ public class TaskBuilder {
 					PipelineWorker worker = new PipelineWorker(taskExecutor, ins);
 					worker.setParentWorker(topWorker);
 					worker.getParentWorker().setChildWorker(worker);
+					worker.priority-=1;
 					//worker.setData(worker.getParentWorker().getFuture());
 					lastWorker = worker;
 					workerList.add(lastWorker);
@@ -143,6 +144,7 @@ public class TaskBuilder {
 				PipelineWorker worker = new PipelineWorker(taskExecutor, ins);
 				worker.setParentWorker(topWorker);
 				worker.getParentWorker().setChildWorker(worker);
+				worker.priority-=1;
 				//worker.setData(worker.getParentWorker().getFuture());
 				intermediary = worker;
 				workerList.add(intermediary);

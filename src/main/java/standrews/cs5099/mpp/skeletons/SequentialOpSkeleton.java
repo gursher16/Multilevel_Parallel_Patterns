@@ -18,13 +18,16 @@ import standrews.cs5099.mpp.tasks.TaskScheduler;
 public class SequentialOpSkeleton<I, O> implements Skeleton<I, O> {
 
 	private Operation<I, O> operation;
+	public  Class<O> outputType;
 
-	public SequentialOpSkeleton(Operation<I, O> operation) {
+	public SequentialOpSkeleton(Operation<I, O> operation, Class<O> outputType) {
 		this.operation = operation;
+		this.outputType = outputType;
 	}
 
-	@Override
+	
 	public Future<O> submitData(I inputData) {
+		
 		MPP mpp = MPP.getMppInstance();
 		TaskScheduler<I, O> taskScheduler = mpp.createTaskScheduler(this);
 		return taskScheduler.scheduleNewTaskForExecution(inputData);
@@ -38,6 +41,11 @@ public class SequentialOpSkeleton<I, O> implements Skeleton<I, O> {
 	
 	public Operation<I, O> getSequentialOperation() {
 		return operation;
+	}
+	
+	@Override
+	public Class<O> getOutputType() {
+		return outputType;
 	}
 
 }
