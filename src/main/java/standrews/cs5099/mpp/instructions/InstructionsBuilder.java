@@ -51,11 +51,13 @@ public class InstructionsBuilder {
 			for (Skeleton<?, ?> skel : pipelineSkeleton.getStages()) {
 
 				InstructionsBuilder stageBuilder = new InstructionsBuilder();
+				skel.buildInstructions(stageBuilder);
 				// add elements to temp stack
-				instructionStack.addAll(stageBuilder.instructionStack);
+				tempStack.addAll(stageBuilder.instructionStack);
 			}
 			// move first stage to top of stack
 			Collections.reverse(tempStack);
+			instructionStack.addAll(tempStack);
 
 		} else {
 			// Two stages -- create Builder for each stage

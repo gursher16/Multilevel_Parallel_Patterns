@@ -1,10 +1,12 @@
 package standrews.cs5099.mpp.tasks;
 
 import java.util.List;
+import java.util.Queue;
 import java.util.Stack;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.text.AbstractWriter;
 
@@ -31,6 +33,10 @@ public class PipelineWorker<O> extends Worker{
 	// Execution to be executed by the Worker
 	private Instruction instruction;
 	
+	Queue<Object> inputQueue;
+	Queue<Object> outputQueue;
+	//out
+	
 			
 
 	/**
@@ -48,6 +54,9 @@ public class PipelineWorker<O> extends Worker{
 		this.childWorker = null;
 		this.priority = 10000;
 		this.isFinished = false;
+		
+		inputQueue = new LinkedBlockingQueue<Object>();
+		outputQueue = new LinkedBlockingQueue<Object>();
 	}
 
 	/**
@@ -76,47 +85,67 @@ public class PipelineWorker<O> extends Worker{
 	 */
 	
 	@Override
-	public void run() {
-		Object result = null;
+	public  void run() {
+		
 		if(this.isRootPipelineWorker()) {
-			System.out.println("Wow parent task is being executed");
-			// link output of current worker to input of next worker
-			this.childWorker.setData(this.taskFuture);
-			// invoke next worker
-			taskExecutor.execute(this.childWorker);			
-			// set result of execution in future
-			this.taskFuture.setResult(WorkerService.executePipelineWorker(this));	
-						
-		}
-		else {
+			while(!this.inputQueue.isEmpty()) {
+				this.data = inputQueue.remove();
+				System.out.println("Parent worker is being executed");
+				// link output of current worker to input of next worker
+				// this.childWorker.setData(this.taskFuture);
+				
+				// set result of execution in future
+				Object result = WorkerService.executePipelineWorker(this);
+				this.outputQueue.add(result);
+				// invoke next worker
+				taskExecutor.execute(this.childWorker);
+				
+			}
+			this.outputQueue.add(new String("END"));
+			// set success message in result to signal successful completion
+			this.taskFuture.setResult("SUCCESS");
+		} else {
 			System.out.println("Wow child task is being executed");
 			try {
 				// block till parent worker gives result
-				data = this.parentWorker.getFuture().get();
+				//this.parentWorker.getFuture().get();
+				// data = this.parentWorker.outputQueue.remove();
 				// free parent worker's future once result is obtained
-				this.parentWorker.getFuture().setResult(null);
+				// this.parentWorker.getFuture().setResult(null);
 				// if current worker has child
-				if(null!=this.childWorker) {
-					// link output of current worker with input of next worker
-					this.childWorker.setData(this.taskFuture);
-					// invoke next worker
-					taskExecutor.execute(this.childWorker);
-					this.taskFuture.setResult(WorkerService.executePipelineWorker(this));
-				}
-				else { /* CURRENT WORKER IS LAST WORKER IN PIPELINE*/
+				if (null != this.childWorker) {
+					while (this.getParentWorker().outputQueue.size() != 0) {
+						// link output of current worker with input of next worker
+						// this.childWorker.setData(this.taskFuture);
+						this.data = this.getParentWorker().outputQueue.remove();						
+						// this.taskFuture.setResult(WorkerService.executePipelineWorker(this));
+						// invoke next worker
+						if(data.equals("END")) {
+							break;
+						}
+						taskExecutor.execute(this.childWorker);
+						this.outputQueue.add(WorkerService.executePipelineWorker(this));
+					}
+				} else { /* CURRENT WORKER IS LAST WORKER IN PIPELINE */
 					// call special method which executes and stores result in a Collection
-					WorkerService.executeAndCollectResult(this);
-					// wake up any waiting root worker
-					//this.getRootWorker().getFuture().wakeRootWorker();
+					// WorkerService.executeAndCollectResult(this);
+					while (this.getParentWorker().outputQueue.size() != 0 ) {
+						
+						this.data = this.getParentWorker().outputQueue.remove();
+						if(data.equals("END")) {
+							break;
+						}
+						WorkerService.executeAndCollectResult(this);
+						// wake up any waiting root worker
+						// this.getRootWorker().getFuture().wakeRootWorker();
+					}
+					// set future of 
 				}
 				//this.taskFuture.setResult(WorkerService.executePipelineWorker(this));
-			} catch (InterruptedException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} catch (ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			} 
 			//data = this.getParentWorker().getFuture()
 		}
 		

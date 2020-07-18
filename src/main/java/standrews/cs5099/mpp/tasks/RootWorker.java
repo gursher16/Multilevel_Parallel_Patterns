@@ -108,15 +108,18 @@ public class RootWorker<O> extends Worker {
 
 	public void executeSkeleton() {
 		int iter = 0;
+		WorkerService.initializeTaskPool(data);
 		if (data instanceof Collection) {
-			for (Object o : (Collection) data) {
+			
 				iter+=1;
-				workers[0].setData(o);
+				for(Object o : (Collection)data) {
+					workers[0].inputQueue.add(o);
+				}
+				//workers[0].setData(o);
 				// start top level worker in skeleton (which will invoke subsequent workers)
 				
 				///2nd approach////
-				
-				
+								
 				/*
 				if(taskExecutor.getActiveCount()<taskExecutor.getCorePoolSize()) {
 					this.taskExecutor.execute(workers[0]);					
@@ -134,34 +137,35 @@ public class RootWorker<O> extends Worker {
 					this.taskExecutor.execute(workers[0]);
 				}
 				*/
-				this.taskExecutor.execute(workers[0]);
+				//this.taskExecutor.execute(workers[0]);
 				
-				/**
-				 * 	1st approach
-				try {
-					// block and get result of last worker (which is effectively the result of the
-					// skeleton)
-					Object result = workers[workers.length - 1].getFuture().get();
-					// set result of last worker's future object to null -- preparing it for next iteration
-					workers[workers.length - 1].getFuture().setResult(null);
-					System.out.println("Iteration: " + iter + "  Result: " + result);
-					// send result for collection
-					collectResult(result);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ExecutionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} 
+				/***1st approach*/
+				//while(WorkerService.index != WorkerService.taskPool.length-1) {
+					//try {
+						// block and get result of last worker (which is effectively the result of the
+						// skeleton)
+						/**block till 1st worker is free**/
+						this.taskExecutor.execute(workers[0]);
+						//Object result = workers[0].getFuture().get();
+						// set result of last worker's future object to null -- preparing it for next iteration
+						//workers[workers.length - 1].getFuture().setResult(null);
+						System.out.println("Iteration: " + iter + "  Result: " + result);
+						// send result for collection
+						//collectResult(result);
+					//} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+					//	e.printStackTrace();
+					//} catch (ExecutionException e) {
+						// TODO Auto-generated catch block
+					//	e.printStackTrace();
+					//} 				
+			//	}
+				/** BLOCK FOR RESULT**/
+				//workers
+				skelFuture.setResult(WorkerService.fetchResult());
+				}
 				
-				
-				
-				****/
-			}
-			
-			skelFuture.setResult(WorkerService.fetchResult());
-		}
+		
 		this.isFinished = true;
 	}
 

@@ -31,6 +31,8 @@ public class WorkerService {
 	
 	public static List<PipelineWorker> listOfTasks;
 	public static Collection result;
+	public static Object[] taskPool;
+	public static int index = 0;
 	
 	public static Object executeTask(MPPTask task) {
 		Object data = task.getData();
@@ -52,6 +54,18 @@ public class WorkerService {
 		}
 		return task;
 
+	}
+	
+	public static synchronized Object fetchTask() {
+		Object task = taskPool[index];
+		index+=1;
+		return task;
+	}
+	
+	public static void initializeTaskPool(Object input) {
+		if(input instanceof Collection) {
+			taskPool = ((Collection)input).toArray();
+		}				
 	}
 	
 		
@@ -88,9 +102,9 @@ public class WorkerService {
 		Object data = worker.getData();
 		data = worker.getInstruction().executeInstruction(data, null, null);
 		//collectResult(data);
-		synchronized(worker) {
+		//synchronized(worker) {
 			result.add(data);
-		}
+	//	}
 		
 	}
 	

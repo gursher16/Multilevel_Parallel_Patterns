@@ -5,9 +5,9 @@ import java.util.List;
 
 import standrews.cs5099.mpp.operations.Operation;
 
-public class Operation1a implements Operation<Integer, Integer> {
+public class Operation1a implements Operation<Integer, Double> {
 	@Override
-	public Integer execute(Integer inputParam) throws Exception {
+	public Double execute(Integer inputParam) throws Exception {
 		/**
 		List<Integer> tempList = new ArrayList<>();
 		// usage of streams are possible
@@ -17,8 +17,9 @@ public class Operation1a implements Operation<Integer, Integer> {
 			tempList.add(i);
 		}
 		inputParam = null;**/
-		inputParam = inputParam + 5;
-		return inputParam;
+		System.out.println("INPUT_PARAM OP3: " + inputParam);
+		Double outputParam = (double) (inputParam * 0.5);
+		return outputParam;
 	}
 
 }

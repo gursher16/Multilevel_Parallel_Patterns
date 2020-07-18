@@ -122,29 +122,39 @@ public class TaskBuilder {
 				topWorker = new PipelineWorker(taskExecutor, ins);
 				workerList.add(topWorker);
 				
-			} else if(iterCount == stackSize) {
+			} else if(iterCount == stackSize) { /* CREATION OF LAST STAGE */
 				
 				if(null == intermediary) {  // if pipeline has only two stages
 					PipelineWorker worker = new PipelineWorker(taskExecutor, ins);
 					worker.setParentWorker(topWorker);
 					worker.getParentWorker().setChildWorker(worker);
-					worker.priority-=1;
+					worker.priority-=iterCount;
 					//worker.setData(worker.getParentWorker().getFuture());
 					lastWorker = worker;
 					workerList.add(lastWorker);
 				}
 				else {  // if pipeline has multiple stages
-					lastWorker = intermediary;
+					PipelineWorker worker = new PipelineWorker(taskExecutor, ins);
+					worker.setParentWorker(intermediary);
+					worker.getParentWorker().setChildWorker(worker);
+					worker.priority-=iterCount;
+					lastWorker = worker;
 					workerList.add(lastWorker);
 				}				
 			}
 			
-			else {
-				// create worker and link to output of top worker
+			else { /* CREATION OF INTERMEDIARY STAGES */
+				// create intermediary worker and link to output of top worker
 				PipelineWorker worker = new PipelineWorker(taskExecutor, ins);
-				worker.setParentWorker(topWorker);
+				if(null!= intermediary) {
+					worker.setParentWorker(intermediary);
+				}
+				else {
+					worker.setParentWorker(topWorker);
+				}
+				//worker.setParentWorker(topWorker);
 				worker.getParentWorker().setChildWorker(worker);
-				worker.priority-=1;
+				worker.priority-=iterCount;
 				//worker.setData(worker.getParentWorker().getFuture());
 				intermediary = worker;
 				workerList.add(intermediary);

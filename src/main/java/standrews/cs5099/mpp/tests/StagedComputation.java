@@ -21,16 +21,22 @@ public class StagedComputation {
 		
 		MPP mpp = new MPP();
 		//int size = (int)Math.pow(2, 12);
-		int size = 10;
+		int size = 1000000;
 		List<Integer> in = generate(size);
 		//List<Integer> out;
 		
 		// create first pipeline skeleton
 		Operation o1 = new Operation1();
 		Operation o2 = new Operation2();
+		Operation o3 = new Operation1a();
 		Skeleton firstStage = new SequentialOpSkeleton(o1, Integer.class);
-		Skeleton lastStage = new SequentialOpSkeleton<Integer, Integer>(o2, Integer.class);
-		Skeleton skel1 = new PipelineSkeleton(firstStage, lastStage, ArrayList.class);
+		Skeleton secondStage = new SequentialOpSkeleton<Integer, Integer>(o2, Integer.class);
+		Skeleton thirdStage = new SequentialOpSkeleton<Integer, Double>(o3, Double.class);
+		
+		Skeleton stages[] = {firstStage, secondStage, thirdStage};
+		
+		
+		Skeleton skel1 = new PipelineSkeleton(stages, ArrayList.class);
 		
 		
 		
