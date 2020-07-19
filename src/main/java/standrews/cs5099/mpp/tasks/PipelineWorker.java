@@ -90,7 +90,7 @@ public class PipelineWorker<O> extends Worker{
 		if(this.isRootPipelineWorker()) {
 			while(!this.inputQueue.isEmpty()) {
 				this.data = inputQueue.remove();
-				System.out.println("Parent worker is being executed");
+			//	System.out.println("Parent worker is being executed");
 				// link output of current worker to input of next worker
 				// this.childWorker.setData(this.taskFuture);
 				
@@ -105,7 +105,7 @@ public class PipelineWorker<O> extends Worker{
 			// set success message in result to signal successful completion
 			this.taskFuture.setResult("SUCCESS");
 		} else {
-			System.out.println("Wow child task is being executed");
+			//System.out.println("Wow child task is being executed");
 			try {
 				// block till parent worker gives result
 				//this.parentWorker.getFuture().get();
@@ -114,7 +114,8 @@ public class PipelineWorker<O> extends Worker{
 				// this.parentWorker.getFuture().setResult(null);
 				// if current worker has child
 				if (null != this.childWorker) {
-					while (this.getParentWorker().outputQueue.size() != 0) {
+					synchronized(this) {
+					while (null!=this.getParentWorker().outputQueue.peek()) {
 						// link output of current worker with input of next worker
 						// this.childWorker.setData(this.taskFuture);
 						this.data = this.getParentWorker().outputQueue.remove();						
@@ -123,14 +124,15 @@ public class PipelineWorker<O> extends Worker{
 						if(data.equals("END")) {
 							break;
 						}
-						taskExecutor.execute(this.childWorker);
 						this.outputQueue.add(WorkerService.executePipelineWorker(this));
+						taskExecutor.execute(this.childWorker);
+						}
 					}
 				} else { /* CURRENT WORKER IS LAST WORKER IN PIPELINE */
 					// call special method which executes and stores result in a Collection
 					// WorkerService.executeAndCollectResult(this);
-					while (this.getParentWorker().outputQueue.size() != 0 ) {
-						
+					synchronized(this) {
+					while (null!= this.getParentWorker().outputQueue.peek()) {
 						this.data = this.getParentWorker().outputQueue.remove();
 						if(data.equals("END")) {
 							break;
@@ -138,7 +140,7 @@ public class PipelineWorker<O> extends Worker{
 						WorkerService.executeAndCollectResult(this);
 						// wake up any waiting root worker
 						// this.getRootWorker().getFuture().wakeRootWorker();
-					}
+					} }
 					// set future of 
 				}
 				//this.taskFuture.setResult(WorkerService.executePipelineWorker(this));

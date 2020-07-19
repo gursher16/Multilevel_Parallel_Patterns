@@ -21,10 +21,13 @@ public class StagedComputation {
 		
 		MPP mpp = new MPP();
 		//int size = (int)Math.pow(2, 12);
-		int size = 1000000;
+		int size = 50000;
 		List<Integer> in = generate(size);
 		//List<Integer> out;
+		List<Double> result = new ArrayList<>();
 		
+		long startTime;
+		long endTime;
 		// create first pipeline skeleton
 		Operation o1 = new Operation1();
 		Operation o2 = new Operation2();
@@ -37,6 +40,22 @@ public class StagedComputation {
 		
 		
 		Skeleton skel1 = new PipelineSkeleton(stages, ArrayList.class);
+		
+		
+		////////////////////////// SEQUENTIAL OPERATION ///////////////////
+		startTime = System.currentTimeMillis();
+		for(int i: in) {
+			i = i * 10;
+			i = i + 111;
+			double o = i * 0.5;
+			result.add(o);
+		}
+		endTime = System.currentTimeMillis();
+		System.out.println("Sequential Execution time Taken: " + (endTime - startTime));
+		
+		
+		
+		//////////////////////////////////////////////////////////////
 		
 		
 		
@@ -60,10 +79,12 @@ public class StagedComputation {
 		//Skeleton pipeSkel = new PipelineSkeleton<List<Integer>, List<Integer>>(skel1, skel2) ;
 		//List<Integer> outputList;
 		
-			
+		startTime = System.currentTimeMillis();
 		Future<ArrayList<Integer>> outputFuture = skel1.submitData(in);
 		try {
 			outputFuture.get();
+			endTime = System.currentTimeMillis();
+			System.out.println("Parallel Execution time Taken: " + (endTime - startTime));
 		} catch (InterruptedException | ExecutionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -77,6 +98,7 @@ public class StagedComputation {
 		Random random = new Random();
 		ArrayList<Integer> array = new ArrayList<Integer>();
 		
+		/*
 		array.add(738);
 		array.add(591);
 		array.add(129);
@@ -87,11 +109,11 @@ public class StagedComputation {
 		array.add(170);
 		array.add(417);
 		array.add(26);
+		*/
 		
-		/*
 		for(int i=0;i<size;i++){
-			array.add(i, random.nextDouble());
-		}*/
+			array.add(i, random.nextInt());
+		}
 
 		return array;
 	}

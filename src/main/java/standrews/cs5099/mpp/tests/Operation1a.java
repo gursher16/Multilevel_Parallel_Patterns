@@ -17,7 +17,7 @@ public class Operation1a implements Operation<Integer, Double> {
 			tempList.add(i);
 		}
 		inputParam = null;**/
-		System.out.println("INPUT_PARAM OP3: " + inputParam);
+	//	System.out.println("INPUT_PARAM OP3: " + inputParam);
 		Double outputParam = (double) (inputParam * 0.5);
 		return outputParam;
 	}

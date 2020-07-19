@@ -37,13 +37,11 @@ public class InstructionsBuilder {
 	 */
 	public <I, O> void traverse(PipelineSkeleton<I, O> pipelineSkeleton) {
 		/**
-		// Signals start of pipeline
-		PipelineInstruction pipeLineBegin = new PipelineInstruction(false);
-		// Signals end of pipeline
-		PipelineInstruction pipeLineEnd = new PipelineInstruction(true);
-		//	link pipeline instructions 
-		pipeLineBegin.linkPipelineInstruction(pipeLineEnd);
-		**/
+		 * // Signals start of pipeline PipelineInstruction pipeLineBegin = new
+		 * PipelineInstruction(false); // Signals end of pipeline PipelineInstruction
+		 * pipeLineEnd = new PipelineInstruction(true); // link pipeline instructions
+		 * pipeLineBegin.linkPipelineInstruction(pipeLineEnd);
+		 **/
 
 		if (pipelineSkeleton.getaHasMultipleStages()) {
 			Stack<Instruction> tempStack = new Stack<>();
@@ -63,30 +61,42 @@ public class InstructionsBuilder {
 			// Two stages -- create Builder for each stage
 			InstructionsBuilder firstStageBuilder = new InstructionsBuilder();
 			InstructionsBuilder lastStageBuilder = new InstructionsBuilder();
-			
+
 			// push pipeline end instruction
 			// instructionStack.push(pipeLineEnd);
-			
-									
+
 			// traverse both stages to create instruction stack
 			pipelineSkeleton.getFirstStage().buildInstructions(firstStageBuilder);
 			pipelineSkeleton.getLastStage().buildInstructions(lastStageBuilder);
 
-			
 			// add last stage first
 			instructionStack.addAll(lastStageBuilder.getInstructionsStack());
 			// first stage should be top of the stack
 			instructionStack.addAll(firstStageBuilder.getInstructionsStack());
 			// push pipeline begin instruction
-			//instructionStack.push(pipeLineBegin);
+			// instructionStack.push(pipeLineBegin);
 
 		}
 	}
 
+	/**
+	 * Push a Sequential Operation Instruction
+	 * 
+	 * @param <I>
+	 * @param <O>
+	 * @param seqOpSkeleton
+	 */
 	public <I, O> void traverse(SequentialOpSkeleton<I, O> seqOpSkeleton) {
 		instructionStack.push(new SequentialOpInstruction(seqOpSkeleton.getSequentialOperation()));
 	}
-
+	
+	/**
+	 * Push a Farm Instruction
+	 * 
+	 * @param <I>
+	 * @param <O>
+	 * @param farmSkeleton
+	 */
 	public <I, O> void traverse(FarmSkeleton<I, O> farmSkeleton) {
 
 	}

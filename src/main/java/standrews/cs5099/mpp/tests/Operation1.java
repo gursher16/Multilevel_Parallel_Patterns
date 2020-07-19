@@ -20,8 +20,8 @@ public class Operation1 implements Operation<Integer, Integer> {
 		//inputParam = inputParam * 0.1234;
 		//inputParam = null;
 		
-		System.out.println("INPUT_PARAM OP1: " + inputParam);
-		return inputParam;
+	//	System.out.println("INPUT_PARAM OP1: " + inputParam);
+		return inputParam * 10;
 	}
 
 }

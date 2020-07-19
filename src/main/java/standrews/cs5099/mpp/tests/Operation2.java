@@ -18,8 +18,8 @@ public class Operation2 implements Operation<Integer, Integer> {
 		**/
 		//inputParam = null;
 		//inputParam = inputParam * 2.12345;
-		System.out.println("INPUT_PARAM OP2: " + inputParam);
-		return inputParam;
+//		System.out.println("INPUT_PARAM OP2: " + inputParam);
+		return inputParam + 111;
 	}
 
 }
