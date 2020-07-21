@@ -98,7 +98,9 @@ public class InstructionsBuilder {
 	 * @param farmSkeleton
 	 */
 	public <I, O> void traverse(FarmSkeleton<I, O> farmSkeleton) {
-
+		InstructionsBuilder builder = new InstructionsBuilder();
+		farmSkeleton.getTargetSkeleton().buildInstructions(builder);
+		instructionStack.addAll(builder.getInstructionsStack());		
 	}
 
 	public Stack<Instruction> getInstructionsStack() {

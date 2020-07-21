@@ -2,7 +2,9 @@ package standrews.cs5099.mpp.skeletons;
 
 import java.util.concurrent.Future;
 
+import standrews.cs5099.mpp.core.MPP;
 import standrews.cs5099.mpp.instructions.InstructionsBuilder;
+import standrews.cs5099.mpp.tasks.TaskScheduler;
 
 /**
  * Represents a Farm Skeleton
@@ -22,13 +24,15 @@ public class FarmSkeleton<I, O> implements Skeleton<I, O> {
 	public FarmSkeleton(Skeleton<I, O> targetSkeleton, Class<O> outputType) {
 		// TODO Auto-generated constructor stub
 		this.targetSkeleton = targetSkeleton;
+		this.outputType = outputType;
 	}
 	
 	
 	@Override
 	public Future<O> submitData(I inputData) {
-		// TODO Auto-generated method stub
-		return null;
+		MPP mpp = MPP.getMppInstance();
+		TaskScheduler<I, O> taskScheduler = mpp.createTaskScheduler(this);
+		return taskScheduler.scheduleNewTaskForExecutionPipeLine(inputData);
 	}
 
 	@Override
@@ -40,6 +44,10 @@ public class FarmSkeleton<I, O> implements Skeleton<I, O> {
 	@Override
 	public Class<O> getOutputType() {
 		return outputType;
+	}
+	
+	public Skeleton<?,?> getTargetSkeleton() {
+		return targetSkeleton;
 	}
 
 }

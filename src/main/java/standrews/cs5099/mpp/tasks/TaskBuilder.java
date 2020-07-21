@@ -8,11 +8,16 @@ import standrews.cs5099.mpp.core.TaskExecutor;
 import standrews.cs5099.mpp.instructions.Instruction;
 import standrews.cs5099.mpp.instructions.PipelineInstruction;
 import standrews.cs5099.mpp.instructions.SequentialOpInstruction;
+import standrews.cs5099.mpp.skeletons.FarmSkeleton;
+import standrews.cs5099.mpp.skeletons.PipelineSkeleton;
+import standrews.cs5099.mpp.skeletons.Skeleton;
 
 	
 public class TaskBuilder {
+	private Skeleton<?,?> targetSkeleton;
 	private TaskExecutor taskExecutor;
 	private Stack<Instruction> instructionStack;
+	
 	// top level worker 
 	private PipelineWorker topWorker;
 	
@@ -21,7 +26,8 @@ public class TaskBuilder {
 	//private List<Pipe> pipelineTask;
 	
 	
-	public TaskBuilder(TaskExecutor taskExecutor, Stack<Instruction> instructionsStack) {
+	public TaskBuilder(Skeleton<?,?> targetSkeleton, TaskExecutor taskExecutor, Stack<Instruction> instructionsStack) {
+		this.targetSkeleton = targetSkeleton;
 		this.taskExecutor = taskExecutor;
 		this.instructionStack = instructionsStack;
 	}
@@ -67,7 +73,7 @@ public class TaskBuilder {
 	
 	
 	
-	public PipelineWorker[] buildSkeleton() {
+	public PipelineWorker[] buildSkeleton(PipelineSkeleton<?, ?> targetSkeleton) {
 		/* 			UNCOMMENT HERE
 		//create root task
 		boolean firstIteration = false;
@@ -165,6 +171,17 @@ public class TaskBuilder {
 	}
 	
 	
+	public SimpleWorker[] buildSkeleton(FarmSkeleton<?, ?> farmSkeleton) {
+		SimpleWorker[] workers = null;
+		if(farmSkeleton.getTargetSkeleton() instanceof PipelineSkeleton) {
+			//Worker[] workers = buildSkeleton((PipelineSkeleton)farmSkeleton.getTargetSkeleton());	
+			//return (PipelineWorker[])workers;
+		}
+		else {
+			workers= new SimpleWorker[] {new SimpleWorker(taskExecutor, instructionStack.pop())};			
+		}
+		return workers;
+	}
 	
 	
 	

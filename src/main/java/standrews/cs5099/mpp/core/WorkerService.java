@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -15,6 +16,7 @@ import java.util.Vector;
 import standrews.cs5099.mpp.instructions.Instruction;
 import standrews.cs5099.mpp.tasks.MPPTask;
 import standrews.cs5099.mpp.tasks.PipelineWorker;
+import standrews.cs5099.mpp.tasks.TaskFuture;
 import standrews.cs5099.mpp.tasks.Worker;
 
 /**
@@ -33,6 +35,10 @@ public class WorkerService {
 	public static Collection result;
 	public static Object[] taskPool;
 	public static int index = 0;
+	
+	// Future object for the result of the skeleton execution
+	public static TaskFuture resultFuture;
+	
 	
 	public static Object executeTask(MPPTask task) {
 		Object data = task.getData();
@@ -98,6 +104,10 @@ public class WorkerService {
 		return data;
 	}
 	
+	public static Object executeInstruction(Object data, Instruction instruction) {
+		return instruction.executeInstruction(data, null, null);
+	}
+	
 	public static void executeAndCollectResult(Worker worker) {
 		Object data = worker.getData();
 		data = worker.getInstruction().executeInstruction(data, null, null);
@@ -108,8 +118,18 @@ public class WorkerService {
 		
 	}
 	
-	public static Collection fetchResult() {
+	public static Collection fetchResult(Queue<Object> outputQueue) {
+		// null check here
+		for(Object o: outputQueue) {
+			result.add(o);
+		}
+		//resultFuture.setResult(result);
 		return result;
+	}
+	
+	
+	public static void setResultFuture(TaskFuture resultFuture) {
+		WorkerService.resultFuture = resultFuture;
 	}
 	
 	/**dummy**/

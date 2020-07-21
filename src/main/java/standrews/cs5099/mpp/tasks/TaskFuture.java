@@ -17,12 +17,12 @@ import standrews.cs5099.mpp.core.TaskExecutor;
 public class TaskFuture<V> implements Future<V> {
 
 	private TaskExecutor taskExecutor;
-	private PipelineWorker task;
+	private Worker task;
 	private RootWorker rootworker;
 	private V result;
 	private boolean isCancelled;
 
-	public TaskFuture(TaskExecutor taskExecutor, PipelineWorker task) {
+	public TaskFuture(TaskExecutor taskExecutor, Worker task) {
 		// TODO Auto-generated constructor stub
 		this.taskExecutor = taskExecutor;
 		this.task = task;

@@ -1,8 +1,6 @@
 package standrews.cs5099.mpp.tests;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -10,13 +8,14 @@ import java.util.concurrent.Future;
 
 import standrews.cs5099.mpp.core.MPP;
 import standrews.cs5099.mpp.operations.Operation;
+import standrews.cs5099.mpp.skeletons.FarmSkeleton;
 import standrews.cs5099.mpp.skeletons.PipelineSkeleton;
 import standrews.cs5099.mpp.skeletons.SequentialOpSkeleton;
 import standrews.cs5099.mpp.skeletons.Skeleton;
 
-public class StagedComputation {
-
-	public static void main(String args[]) {
+public class FarmedComputation {
+	
+public static void main(String args[]) {
 		
 		
 		
@@ -31,16 +30,16 @@ public class StagedComputation {
 		long endTime;
 		// create first pipeline skeleton
 		Operation o1 = new Operation1();
-		Operation o2 = new Operation2();
-		Operation o3 = new Operation1a();
+		//Operation o2 = new Operation2();
+		//Operation o3 = new Operation1a();
 		Skeleton firstStage = new SequentialOpSkeleton(o1, Integer.class);
-		Skeleton secondStage = new SequentialOpSkeleton<Integer, Integer>(o2, Integer.class);
-		Skeleton thirdStage = new SequentialOpSkeleton<Integer, Double>(o3, Double.class);
+		//Skeleton secondStage = new SequentialOpSkeleton<Integer, Integer>(o2, Integer.class);
+		//Skeleton thirdStage = new SequentialOpSkeleton<Integer, Double>(o3, Double.class);
 		
-		Skeleton stages[] = {firstStage, secondStage, thirdStage};
+		//Skeleton stages[] = {firstStage, secondStage, thirdStage};
 		
 		
-		Skeleton skel1 = new PipelineSkeleton(stages, ArrayList.class);
+		Skeleton skel1 = new FarmSkeleton(firstStage, ArrayList.class);
 		
 		
 		////////////////////////// SEQUENTIAL OPERATION ///////////////////
@@ -81,17 +80,16 @@ public class StagedComputation {
 		//List<Integer> outputList;
 		
 		startTime = System.currentTimeMillis();
-		Future<List<Double>> outputFuture = skel1.submitData(in);
+		Future<ArrayList<Integer>> outputFuture = skel1.submitData(in);
 		try {
-			result = outputFuture.get();
+			outputFuture.get();
 			endTime = System.currentTimeMillis();
 			System.out.println("Parallel Execution time Taken: " + (endTime - startTime));
-			assert result.size() == in.size();
 		} catch (InterruptedException | ExecutionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("EXECUTION - FINISHED");
+		System.out.println("FINISHED");
 		
 	}
 	
@@ -119,5 +117,4 @@ public class StagedComputation {
 
 		return array;
 	}
-	
 }

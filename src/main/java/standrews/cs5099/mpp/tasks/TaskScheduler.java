@@ -19,6 +19,8 @@ import standrews.cs5099.mpp.core.TaskExecutor;
 import standrews.cs5099.mpp.core.WorkerService;
 import standrews.cs5099.mpp.instructions.Instruction;
 import standrews.cs5099.mpp.instructions.InstructionsBuilder;
+import standrews.cs5099.mpp.skeletons.FarmSkeleton;
+import standrews.cs5099.mpp.skeletons.PipelineSkeleton;
 import standrews.cs5099.mpp.skeletons.Skeleton;
 
 /**
@@ -62,8 +64,9 @@ public class TaskScheduler<I, O> {
 		List<PipelineWorker> taskList = new ArrayList<>();
 		InstructionsBuilder instructionsBuilder = new InstructionsBuilder();
 		targetSkeleton.buildInstructions(instructionsBuilder);
-		TaskBuilder taskBuilder = new TaskBuilder(taskExecutor, instructionsBuilder.getInstructionsStack());
-		PipelineWorker[] workers = taskBuilder.buildSkeleton();
+		TaskBuilder taskBuilder = new TaskBuilder(targetSkeleton, taskExecutor, instructionsBuilder.getInstructionsStack());
+		PipelineWorker[] workers = taskBuilder.buildSkeleton((PipelineSkeleton)targetSkeleton);
+		//SimpleWorker [] workers = taskBuilder.buildSkeleton((FarmSkeleton)targetSkeleton);
 		RootWorker<O> skeletonWorker = new RootWorker<>(inputParam, taskExecutor, workers, targetSkeleton.getOutputType());
 		this.taskExecutor.execute(skeletonWorker);
 		return skeletonWorker.getSkelFuture();

@@ -20,21 +20,16 @@ public class PipelineWorker<O> extends Worker{
 	private Object data;
 
 	// Parent Worker (pipeline stage)
-	private PipelineWorker parentWorker;
+	//private Worker parentWorker;
 	// Root Worker
 	private RootWorker rootWorker;
 	
-	private PipelineWorker childWorker;
+	//private Worker childWorker;
 
-	// ExecutorService responsible for executing worker
-	private TaskExecutor taskExecutor;
-	// Future object which holds result of computation
-	private TaskFuture taskFuture;
+	
 	// Execution to be executed by the Worker
 	private Instruction instruction;
 	
-	Queue<Object> inputQueue;
-	Queue<Object> outputQueue;
 	//out
 	
 			
@@ -76,7 +71,7 @@ public class PipelineWorker<O> extends Worker{
 	 * @return
 	 */
 	public boolean isRootPipelineWorker() {
-		return (parentWorker == null);
+		return (getParentPipelineWorker() == null);
 	}
 
 	/**
@@ -90,7 +85,7 @@ public class PipelineWorker<O> extends Worker{
 		if(this.isRootPipelineWorker()) {
 			while(!this.inputQueue.isEmpty()) {
 				this.data = inputQueue.remove();
-			//	System.out.println("Parent worker is being executed");
+				System.out.println("Parent worker is being executed");
 				// link output of current worker to input of next worker
 				// this.childWorker.setData(this.taskFuture);
 				
@@ -102,10 +97,12 @@ public class PipelineWorker<O> extends Worker{
 				
 			}
 			this.outputQueue.add(new String("END"));
-			// set success message in result to signal successful completion
-			this.taskFuture.setResult("SUCCESS");
+			taskExecutor.execute(this.childWorker);
+			// set finish message in result to signal successful completion
+			//this.taskFuture.setResult("FINISH");
+			
 		} else {
-			//System.out.println("Wow child task is being executed");
+			System.out.println("Child Worker is being executed");
 			try {
 				// block till parent worker gives result
 				//this.parentWorker.getFuture().get();
@@ -113,7 +110,7 @@ public class PipelineWorker<O> extends Worker{
 				// free parent worker's future once result is obtained
 				// this.parentWorker.getFuture().setResult(null);
 				// if current worker has child
-				if (null != this.childWorker) {
+				if (null != this.getChildPipelineWorker()) { /** CURRENT WORKER IS INTERMEDIATE WORKER IN PIPELINE **/
 					synchronized(this) {
 					while (null!=this.getParentWorker().outputQueue.peek()) {
 						// link output of current worker with input of next worker
@@ -122,6 +119,9 @@ public class PipelineWorker<O> extends Worker{
 						// this.taskFuture.setResult(WorkerService.executePipelineWorker(this));
 						// invoke next worker
 						if(data.equals("END")) {
+							System.out.println("ENDING - INTERMEDIATE !!!!");
+							this.outputQueue.add(data);
+							taskExecutor.execute(this.childWorker);
 							break;
 						}
 						this.outputQueue.add(WorkerService.executePipelineWorker(this));
@@ -135,9 +135,13 @@ public class PipelineWorker<O> extends Worker{
 					while (null!= this.getParentWorker().outputQueue.peek()) {
 						this.data = this.getParentWorker().outputQueue.remove();
 						if(data.equals("END")) {
+							System.out.println("ENDING PIPELINE !!!!!");
+							this.taskFuture.setResult("FINISH");
 							break;
 						}
-						WorkerService.executeAndCollectResult(this);
+						
+						//** THIS LINE IS WORKING --> WorkerService.executeAndCollectResult(this);**//
+						this.outputQueue.add(WorkerService.executePipelineWorker(this));
 						// wake up any waiting root worker
 						// this.getRootWorker().getFuture().wakeRootWorker();
 					} }
@@ -175,11 +179,8 @@ public class PipelineWorker<O> extends Worker{
 	}
 	*/
 	
-	public void setChildWorker(PipelineWorker childWorker) {
-		this.childWorker = childWorker;
-	}
-	
-	public PipelineWorker getchildWorker() {
+		
+	public Worker getchildWorker() {
 		return this.childWorker;
 	}
 
@@ -193,8 +194,28 @@ public class PipelineWorker<O> extends Worker{
 		return this.taskFuture;
 	}
 
-	public PipelineWorker getParentWorker() {
+	public Worker getParentWorker() {
 		return this.parentWorker;
+	}
+	
+	
+	public PipelineWorker getParentPipelineWorker() {
+		
+		if(this.parentWorker instanceof PipelineWorker) {
+			return (PipelineWorker) parentWorker;
+		}
+		else {
+			return null;
+		}
+	}
+	
+	public PipelineWorker getChildPipelineWorker() {
+		if(this.childWorker instanceof PipelineWorker) {
+			return (PipelineWorker) childWorker;			
+		}
+		else {
+			return null;
+		}
 	}
 
 	/**
@@ -242,7 +263,7 @@ public class PipelineWorker<O> extends Worker{
 		this.taskExecutor= taskExecutor;
 	}
 
-	public void setParentWorker(PipelineWorker parentWorker) {
+	public void setParentPipelineWorker(PipelineWorker parentWorker) {
 		this.parentWorker= parentWorker;
 	}
 

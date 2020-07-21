@@ -27,8 +27,6 @@ import standrews.cs5099.mpp.instructions.Instruction;
 public class RootWorker<O> extends Worker {
 	// Actual data to be executed
 	private Object data;
-	// ExecutorService responsible for executing tasks
-	private TaskExecutor taskExecutor;
 	// Future object which holds result of skeleton
 	private TaskFuture skelFuture;
 	private Class<O> outputType;
@@ -39,7 +37,7 @@ public class RootWorker<O> extends Worker {
 	// final result
 	// private Collection result;
 
-	private PipelineWorker[] workers;
+	private Worker[] workers;
 
 	/**
 	 * Constructor for Root Task
@@ -47,7 +45,7 @@ public class RootWorker<O> extends Worker {
 	 * @param data
 	 * @param assignedTaskExecutor
 	 */
-	public RootWorker(Object data, ExecutorService taskExecutor, PipelineWorker[] workers, Class<O> outputType) {
+	public RootWorker(Object data, ExecutorService taskExecutor, Worker[] workers, Class<O> outputType) {
 		this.data = data;
 		// this.rootTask = this;
 		this.taskExecutor = (TaskExecutor) taskExecutor;
@@ -149,7 +147,7 @@ public class RootWorker<O> extends Worker {
 						//Object result = workers[0].getFuture().get();
 						// set result of last worker's future object to null -- preparing it for next iteration
 						//workers[workers.length - 1].getFuture().setResult(null);
-						System.out.println("Iteration: " + iter + "  Result: " + result);
+						//System.out.println("Iteration: " + iter + "  Result: " + result);
 						// send result for collection
 						//collectResult(result);
 					//} catch (InterruptedException e) {
@@ -162,7 +160,14 @@ public class RootWorker<O> extends Worker {
 			//	}
 				/** BLOCK FOR RESULT**/
 				//workers
-				skelFuture.setResult(WorkerService.fetchResult());
+				//WorkerService.resultFuture.get();
+				try {
+					workers[workers.length - 1].getFuture().get();
+				} catch (InterruptedException | ExecutionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				skelFuture.setResult(WorkerService.fetchResult(workers[workers.length-1].outputQueue));
 				}
 				
 		
@@ -173,62 +178,11 @@ public class RootWorker<O> extends Worker {
 		this.result.add(result);
 	}
 
-	private void createInstanceOfResult() {
-		
-		if (outputType.equals(ArrayList.class)) {
-			result = new ArrayList<Object>();
-		} else if (outputType.equals(LinkedList.class)) {
-			result = new LinkedList<Object>();
-		} else if (outputType.equals(Vector.class)) {
-			result = new Vector<Object>();
-		} else if (outputType.equals(Stack.class)) {
-			result = new Stack<Object>();
-		} else if (outputType.equals(PriorityQueue.class)) {
-			result = new PriorityQueue<Object>();
-		} else if (outputType.equals(ArrayDeque.class)) {
-			result = new ArrayDeque<>();
-		} else if (outputType.equals(HashSet.class)) {
-			result = new HashSet<Object>();
-		} else if (outputType.equals(LinkedHashSet.class)) {
-			result = new LinkedHashSet<Object>();
-		} else if (outputType.equals(TreeSet.class)) {
-			result = new TreeSet<Object>();
-		}
-
-	}
-	
 	public Future getSkelFuture() {
 		return this.skelFuture;
 	}
 
-	///////////////////
-
-	/*
-	public void setRootTask(MPPTask rootTask) {
-		this.rootTask = rootTask;
-	}
-
-	public List<MPPTask> getChildTasks() {
-		return childTasks;
-	}
-
-	public void setChildTasks(List<MPPTask> childTasks) {
-		this.childTasks = childTasks;
-	}
-
-	public TaskExecutor getAssignedTaskExecutor() {
-		return assignedTaskExecutor;
-	}
-
-	public void setAssignedTaskExecutor(TaskExecutor assignedTaskExecutor) {
-		this.assignedTaskExecutor = assignedTaskExecutor;
-	}
-
-	public void setParentTask(MPPTask parentTask) {
-		this.parentTask = parentTask;
-	}
-*/
-	public synchronized boolean areChildTasksFinished() {
+		public synchronized boolean areChildTasksFinished() {
 		// dummy value
 		return true;
 	}
