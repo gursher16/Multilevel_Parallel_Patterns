@@ -19,5 +19,7 @@ public interface Operation<I, O> {
 	 * @throws Exception
 	 */
 	public O execute(I inputParam) throws Exception;
-
+	
+	
+	// worker here
 }

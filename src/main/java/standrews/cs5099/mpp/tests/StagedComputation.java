@@ -22,7 +22,7 @@ public class StagedComputation {
 		
 		MPP mpp = new MPP();
 		//int size = (int)Math.pow(2, 12);
-		int size = 5;
+		int size = 100;
 		List<Integer> in = generate(size);
 		//List<Integer> out;
 		List<Double> result = new ArrayList<>();
@@ -33,7 +33,7 @@ public class StagedComputation {
 		Operation o1 = new Operation1();
 		Operation o2 = new Operation2();
 		Operation o3 = new Operation1a();
-		Skeleton firstStage = new SequentialOpSkeleton(o1, Integer.class);
+		Skeleton firstStage = new SequentialOpSkeleton<Integer, Integer>(o1, Integer.class);
 		Skeleton secondStage = new SequentialOpSkeleton<Integer, Integer>(o2, Integer.class);
 		Skeleton thirdStage = new SequentialOpSkeleton<Integer, Double>(o3, Double.class);
 		
@@ -86,7 +86,12 @@ public class StagedComputation {
 			result = outputFuture.get();
 			endTime = System.currentTimeMillis();
 			System.out.println("Parallel Execution time Taken: " + (endTime - startTime));
-			assert result.size() == in.size();
+			if(result.size() == in.size()) {
+				System.out.println("***SAME SIZE***");
+			}
+			else {
+				System.out.println("***INCORRECT***");
+			}
 		} catch (InterruptedException | ExecutionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

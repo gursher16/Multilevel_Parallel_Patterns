@@ -64,8 +64,8 @@ public class TaskScheduler<I, O> {
 		List<PipelineWorker> taskList = new ArrayList<>();
 		InstructionsBuilder instructionsBuilder = new InstructionsBuilder();
 		targetSkeleton.buildInstructions(instructionsBuilder);
-		TaskBuilder taskBuilder = new TaskBuilder(targetSkeleton, taskExecutor, instructionsBuilder.getInstructionsStack());
-		PipelineWorker[] workers = taskBuilder.buildSkeleton((PipelineSkeleton)targetSkeleton);
+		//TaskBuilder taskBuilder = new TaskBuilder(targetSkeleton, taskExecutor, instructionsBuilder.getInstructionsStack());
+		Worker[] workers = TaskBuilder.createWorkers(targetSkeleton, taskExecutor, instructionsBuilder.getInstructionsStack());
 		//SimpleWorker [] workers = taskBuilder.buildSkeleton((FarmSkeleton)targetSkeleton);
 		RootWorker<O> skeletonWorker = new RootWorker<>(inputParam, taskExecutor, workers, targetSkeleton.getOutputType());
 		this.taskExecutor.execute(skeletonWorker);

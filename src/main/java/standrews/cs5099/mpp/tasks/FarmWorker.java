@@ -1,10 +1,15 @@
 package standrews.cs5099.mpp.tasks;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 import standrews.cs5099.mpp.core.TaskExecutor;
 import standrews.cs5099.mpp.core.WorkerService;
 import standrews.cs5099.mpp.instructions.Instruction;
+import standrews.cs5099.mpp.skeletons.Skeleton;
 
 public class FarmWorker extends Worker{
 
@@ -18,28 +23,39 @@ public class FarmWorker extends Worker{
 		// ExecutorService responsible for executing worker
 		private TaskExecutor taskExecutor;
 		// Future object which holds result of computation
-		private TaskFuture taskFuture;
+		//private TaskFuture taskFuture;
 		// Instruction to be executed by the Worker
 		private Instruction instruction;
 		
+		
+		// stack of instructions to be replicated by farm
+		private Stack<Instruction> instructionStack;
+		
+		// skeleton to be replicated by farm
+		private Skeleton<?,?> targetSkeleton;
 		// Queue<Object> outputQueue;
+		
+		private List<TaskFuture> futureList;
 
-		/**
-		 * Constructor for Root Worker
-		 * 
-		 * @param data
-		 * @param assignedTaskExecutor
-		 */
-		public FarmWorker(ExecutorService taskExecutor, Instruction instruction) {
+		
+		
+		public FarmWorker(ExecutorService taskExecutor, Skeleton targetSkeleton, Stack<Instruction> instructionStack) {
 
 			// this.rootWorker = this;
 			this.taskExecutor = (TaskExecutor) taskExecutor;
-			this.instruction = instruction;
+			//this.instruction = instruction;
 			this.taskFuture = new TaskFuture(this.taskExecutor, this);
+			/**latest fields**/
+			this.targetSkeleton = targetSkeleton;
+			this.instructionStack = instructionStack;
+			this.futureList = new ArrayList<>();
+			/****/
 			this.priority = 10000;
 			this.isFinished = false;
 			
 			}
+	
+			
 
 		@Override
 		public void run() {
@@ -48,11 +64,23 @@ public class FarmWorker extends Worker{
 			while (null != inputQueue.peek()) {
 				this.data = inputQueue.remove();
 				//taskExecutor.execute(command);
-				this.outputQueue.add(WorkerService.executeInstruction(data,instruction));
+				Worker[] workers = TaskBuilder.createWorkers(targetSkeleton, taskExecutor, instructionStack);
+				workers[0].inputQueue.add(data);
+				taskExecutor.execute(workers[0]);
+				this.futureList.add(workers[workers.length-1].getFuture());
+				//this.outputQueue.addAll(workers[workers.length-1].outputQueue);
 				// this.outputQueue.add(result);
 				// invoke next worker
-				taskExecutor.execute(this);
-
+			}
+			for(TaskFuture future: futureList) {
+				Object result = null;
+				try {
+					result = future.get();
+				} catch (InterruptedException | ExecutionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				this.outputQueue.add(result);
 			}
 			// this.outputQueue.add(new String("END"));
 			// set success message in result to signal successful completion

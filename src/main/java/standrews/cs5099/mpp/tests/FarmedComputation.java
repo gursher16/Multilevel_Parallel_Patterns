@@ -21,9 +21,11 @@ public static void main(String args[]) {
 		
 		MPP mpp = new MPP();
 		//int size = (int)Math.pow(2, 12);
-		int size = 5;
-		List<Integer> in = generate(size);
+		int size = 1000;
+		List<List<Integer>> chunkedInput = generateChunkedInput(size);
+		List<Integer> sequentialInput = generate(size);
 		//List<Integer> out;
+		
 		List<Double> result = new ArrayList<>();
 		
 		long startTime;
@@ -32,22 +34,20 @@ public static void main(String args[]) {
 		Operation o1 = new Operation1();
 		//Operation o2 = new Operation2();
 		//Operation o3 = new Operation1a();
-		Skeleton firstStage = new SequentialOpSkeleton(o1, Integer.class);
+		Skeleton<List<Integer>, List<Double>> firstStage = new SequentialOpSkeleton(o1, ArrayList.class);
 		//Skeleton secondStage = new SequentialOpSkeleton<Integer, Integer>(o2, Integer.class);
 		//Skeleton thirdStage = new SequentialOpSkeleton<Integer, Double>(o3, Double.class);
 		
 		//Skeleton stages[] = {firstStage, secondStage, thirdStage};
 		
 		
-		Skeleton skel1 = new FarmSkeleton(firstStage, ArrayList.class);
+		Skeleton<List<List<Integer>>, List<Double>> skel1 = new FarmSkeleton(firstStage, ArrayList.class);
 		
 		
 		////////////////////////// SEQUENTIAL OPERATION ///////////////////
 		startTime = System.currentTimeMillis();
-		for(int i: in) {
-			i = i * 10;
-			i = i + 111;
-			double o = i * 0.5;
+		for(int i: sequentialInput) {
+			double o = 1/i;
 			result.add(o);
 		}
 		endTime = System.currentTimeMillis();
@@ -80,11 +80,17 @@ public static void main(String args[]) {
 		//List<Integer> outputList;
 		
 		startTime = System.currentTimeMillis();
-		Future<ArrayList<Integer>> outputFuture = skel1.submitData(in);
+		Future<List<Double>> outputFuture = skel1.submitData(chunkedInput);
 		try {
-			outputFuture.get();
+			result = outputFuture.get();
 			endTime = System.currentTimeMillis();
 			System.out.println("Parallel Execution time Taken: " + (endTime - startTime));
+			if(result.size() == chunkedInput.size()) {
+				System.out.println("Same size!!");
+			}
+			else {
+				System.out.println("Different Size!!");
+			}
 		} catch (InterruptedException | ExecutionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -96,7 +102,7 @@ public static void main(String args[]) {
 	public static List<Integer> generate(int size){
         
 		Random random = new Random();
-		ArrayList<Integer> array = new ArrayList<Integer>();
+		ArrayList<Integer> input = new ArrayList<Integer>();
 		
 		/*
 		array.add(738);
@@ -112,9 +118,39 @@ public static void main(String args[]) {
 		*/
 		
 		for(int i=0;i<size;i++){
-			array.add(i, random.nextInt());
+			input.add(i, random.nextInt());
 		}
 
-		return array;
+		return input;
 	}
+	
+public static List<List<Integer>> generateChunkedInput(int size){
+        
+		Random random = new Random();
+		List<List<Integer>> chunkedList= new ArrayList<>();
+		List<Integer> subList;
+		int chunkSize = 100;
+		int chunks = size/chunkSize;
+		/*
+		array.add(738);
+		array.add(591);
+		array.add(129);
+		array.add(577);
+		array.add(276);
+		array.add(913);
+		array.add(15);
+		array.add(170);
+		array.add(417);
+		array.add(26);
+		*/
+		for(int i=0; i<chunks; i++) {
+			subList = new ArrayList<>();
+			for(int j=0;j<chunkSize;j++){
+				subList.add(random.nextInt());
+			}
+			chunkedList.add(subList);			
+		}		
+		return chunkedList;
+	}
+	
 }

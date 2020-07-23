@@ -85,7 +85,7 @@ public class PipelineWorker<O> extends Worker{
 		if(this.isRootPipelineWorker()) {
 			while(!this.inputQueue.isEmpty()) {
 				this.data = inputQueue.remove();
-				System.out.println("Parent worker is being executed");
+				System.out.println("STAGE 1 - is being executed");
 				// link output of current worker to input of next worker
 				// this.childWorker.setData(this.taskFuture);
 				
@@ -102,7 +102,7 @@ public class PipelineWorker<O> extends Worker{
 			//this.taskFuture.setResult("FINISH");
 			
 		} else {
-			System.out.println("Child Worker is being executed");
+			//System.out.println("Child Worker is being executed");
 			try {
 				// block till parent worker gives result
 				//this.parentWorker.getFuture().get();
@@ -112,6 +112,9 @@ public class PipelineWorker<O> extends Worker{
 				// if current worker has child
 				if (null != this.getChildPipelineWorker()) { /** CURRENT WORKER IS INTERMEDIATE WORKER IN PIPELINE **/
 					synchronized(this) {
+						
+						System.out.println("STAGE 2 is being executed");
+						
 					while (null!=this.getParentWorker().outputQueue.peek()) {
 						// link output of current worker with input of next worker
 						// this.childWorker.setData(this.taskFuture);
@@ -132,6 +135,9 @@ public class PipelineWorker<O> extends Worker{
 					// call special method which executes and stores result in a Collection
 					// WorkerService.executeAndCollectResult(this);
 					synchronized(this) {
+						
+						System.out.println("STAGE 3 is being executed");
+						
 					while (null!= this.getParentWorker().outputQueue.peek()) {
 						this.data = this.getParentWorker().outputQueue.remove();
 						if(data.equals("END")) {

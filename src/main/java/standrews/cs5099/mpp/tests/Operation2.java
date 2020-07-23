@@ -9,16 +9,12 @@ public class Operation2 implements Operation<Integer, Integer> {
 
 	@Override
 	public Integer execute(Integer inputParam) throws Exception {
-		/**
-		List<Integer> tempList = new ArrayList<>();
-		for (Integer i : inputParam) {
-			i = i * 10;
-			tempList.add(i);
-		}
-		**/
-		//inputParam = null;
-		//inputParam = inputParam * 2.12345;
-//		System.out.println("INPUT_PARAM OP2: " + inputParam);
+		/*
+		 * for(int i=1; i<=1000000; i++) { for(int j = 1; j<=1000000; j++) {
+		 * 
+		 * } }
+		 */
+	
 		return inputParam + 111;
 	}
 
