@@ -45,6 +45,7 @@ public class RootWorker<O> extends Worker {
 		this.priority = Integer.MAX_VALUE;
 		// this.instructionStack = instructionStack;
 		skelFuture = new TaskFuture(this.taskExecutor, this);
+		this.rootWorker = this;
 	}
 
 	/**

@@ -64,8 +64,7 @@ public class TaskBuilder {
 			workers = createWorkers((PipelineSkeleton) targetSkeleton, taskExecutor, instructionStack);
 		} else if (targetSkeleton instanceof SequentialOpSkeleton) {
 			workers = createWorkers((SequentialOpSkeleton) targetSkeleton, taskExecutor, instructionStack);
-		}
-		else {
+		} else {
 			workers = createWorkers((FarmSkeleton) targetSkeleton, taskExecutor, instructionStack);
 		}
 		return workers;
@@ -149,8 +148,9 @@ public class TaskBuilder {
 	public static Worker[] createWorkers(FarmSkeleton<?, ?> farmSkeleton, TaskExecutor taskExecutor,
 			Stack<Instruction> instructionStack) {
 		// SimpleWorker[] workers = null;
-		Worker[] workers = null;		
-		workers = new Worker[] { new FarmWorker(taskExecutor, farmSkeleton.getTargetSkeleton(), instructionStack) };		
+		Worker[] workers = null;
+		workers = new Worker[] { new FarmWorker(taskExecutor, farmSkeleton.getTargetSkeleton(),
+				farmSkeleton.getNumberOfWorkers(), instructionStack) };
 		return workers;
 	}
 
@@ -166,7 +166,7 @@ public class TaskBuilder {
 			Stack<Instruction> instructionStack) {
 		Stack<Instruction> cloneStack = (Stack<Instruction>) instructionStack.clone();
 		Worker[] workers = null;
-		workers = new Worker[] {new SimpleWorker(taskExecutor, cloneStack.pop())};		
+		workers = new Worker[] { new SimpleWorker(taskExecutor, cloneStack.pop()) };
 		return workers;
 	}
 

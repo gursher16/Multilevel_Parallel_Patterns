@@ -41,11 +41,32 @@ public class SimpleWorker extends Worker {
 
 	@Override
 	public void run() {
+		
+		
+		while (this.inputQueue.peek()!="END") {
+			if (null == this.inputQueue.peek()) {
+				/** Keep waiting till non null value in input queue **/
+				System.out.println("Worker - waiting..");
+				//waitCount+=1;
+				continue;
+			}
+			this.data = inputQueue.remove();
+			System.out.println("Worker - computing..");
+			// execute instruction and store result in future
+			this.outputQueue.add(WorkerService.executeInstruction(data, instruction));
+			
+			//this.taskFuture.setResult(WorkerService.executeInstruction(data, instruction));
+		
+			
+		/*
 		this.data = inputQueue.remove();
 		// this.data = inputQueue.remove();
 		// TODO Auto-generated method stub
-		//outputQueue.add(WorkerService.executeInstruction(data, instruction));
-		this.taskFuture.setResult(WorkerService.executeInstruction(data, instruction));
+		//outputQueue.add(WorkerService.executeInstruction(data, instruction));*/
+			
+		}
+		System.out.println("Shutting down worker..");
+		this.taskFuture.setResult(this.outputQueue);		
 	}
 
 	@Override
