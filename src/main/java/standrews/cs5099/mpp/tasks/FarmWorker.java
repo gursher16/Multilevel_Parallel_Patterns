@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import standrews.cs5099.mpp.core.TaskExecutor;
 import standrews.cs5099.mpp.core.WorkerService;
 import standrews.cs5099.mpp.instructions.Instruction;
+import standrews.cs5099.mpp.skeletons.FarmSkeleton;
 import standrews.cs5099.mpp.skeletons.Skeleton;
 
 public class FarmWorker extends Worker{
@@ -16,9 +17,6 @@ public class FarmWorker extends Worker{
 	
 	// Actual data to be executed by the worker
 		private Object data;
-
-		// Root Worker
-		private RootWorker rootWorker;
 
 		// ExecutorService responsible for executing worker
 		private TaskExecutor taskExecutor;
@@ -36,6 +34,9 @@ public class FarmWorker extends Worker{
 		// Queue<Object> outputQueue;
 		
 		private List<TaskFuture> futureList;
+		
+		
+		private int noOfWorkers;
 
 		
 		
@@ -52,7 +53,7 @@ public class FarmWorker extends Worker{
 			/****/
 			this.priority = 10000;
 			this.isFinished = false;
-			
+			this.noOfWorkers = ((FarmSkeleton)targetSkeleton).getNumberOfWorkers();
 			}
 	
 			
@@ -60,7 +61,16 @@ public class FarmWorker extends Worker{
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-
+			
+									
+			List<Worker[]> farmWorkers = new ArrayList<>();
+			for(int i = 0; i<noOfWorkers; i++) {
+				// create array of workers (will contain at least two workers if target skeleton is a pipeline)
+				Worker[] workers = TaskBuilder.createWorkers(targetSkeleton, taskExecutor, instructionStack);
+				farmWorkers.add(workers);
+			}
+			
+			// loop till all tasks are consumed from input queue
 			while (null != inputQueue.peek()) {
 				this.data = inputQueue.remove();
 				//taskExecutor.execute(command);

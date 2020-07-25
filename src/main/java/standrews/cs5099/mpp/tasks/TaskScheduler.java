@@ -72,31 +72,6 @@ public class TaskScheduler<I, O> {
 		return skeletonWorker.getSkelFuture();
 		
 	}
-	/*
-	private void createInstanceOfResult() {
-		this.getClass().ge
-		if (O instanceof ArrayList) {
-			result = new ArrayList<Object>();
-		} else if (resultType instanceof LinkedList) {
-			result = new LinkedList<Object>();
-		} else if (resultType instanceof Vector) {
-			result = new Vector<Object>();
-		} else if (resultType instanceof Stack) {
-			result = new Stack<Object>();
-		} else if (resultType instanceof PriorityQueue) {
-			result = new PriorityQueue<Object>();
-		} else if (resultType instanceof ArrayDeque) {
-			result = new ArrayDeque<>();
-		} else if (resultType instanceof HashSet) {
-			result = new HashSet<Object>();
-		} else if (resultType instanceof LinkedHashSet) {
-			result = new LinkedHashSet<Object>();
-		} else if (resultType instanceof TreeSet) {
-			result = new TreeSet<Object>();
-		}
-
-	}*/
 	
-	/**************/
 
 }

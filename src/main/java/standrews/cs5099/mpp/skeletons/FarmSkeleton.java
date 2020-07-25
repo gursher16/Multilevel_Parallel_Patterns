@@ -20,10 +20,12 @@ public class FarmSkeleton<I, O> implements Skeleton<I, O> {
 	public Class<O> outputType;
 	// the skeleton to farm
 	Skeleton<I, O> targetSkeleton;
+	int noOfWorkers;
 
-	public FarmSkeleton(Skeleton<I, O> targetSkeleton, Class<O> outputType) {
+	public FarmSkeleton(Skeleton<I, O> targetSkeleton, int noOfWorkers, Class<O> outputType) {
 		// TODO Auto-generated constructor stub
 		this.targetSkeleton = targetSkeleton;
+		this.noOfWorkers=noOfWorkers;
 		this.outputType = outputType;
 	}
 	
@@ -48,6 +50,10 @@ public class FarmSkeleton<I, O> implements Skeleton<I, O> {
 	
 	public Skeleton<?,?> getTargetSkeleton() {
 		return targetSkeleton;
+	}
+	
+	public int getNumberOfWorkers() {
+		return noOfWorkers;
 	}
 
 }

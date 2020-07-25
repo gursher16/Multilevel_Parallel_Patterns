@@ -17,6 +17,7 @@ public abstract class Worker implements Runnable, Comparable<Worker>{
 	protected Worker childWorker;
 	protected TaskFuture taskFuture;
 	protected TaskExecutor taskExecutor;
+	protected RootWorker rootWorker;
 	
 	
 	Worker() {

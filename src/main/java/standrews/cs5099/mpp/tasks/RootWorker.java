@@ -1,15 +1,6 @@
 package standrews.cs5099.mpp.tasks;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.PriorityQueue;
-import java.util.Stack;
-import java.util.TreeSet;
-import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -31,7 +22,7 @@ public class RootWorker<O> extends Worker {
 	private TaskFuture skelFuture;
 	private Class<O> outputType;
 	private Collection result;
-	
+
 	private int priority;
 
 	// final result
@@ -65,10 +56,7 @@ public class RootWorker<O> extends Worker {
 		System.out.println("MAIN WORKER INITIATED");
 		WorkerService.createInstanceOfResult(outputType);
 		executeSkeleton();
-		// WorkerService.executeTask(this);
-		/**
-		 * O result = (O) WorkerService.executeTask(this); return null;
-		 **/
+		
 	}
 
 	public boolean isTaskFinished() {
@@ -108,69 +96,24 @@ public class RootWorker<O> extends Worker {
 		int iter = 0;
 		WorkerService.initializeTaskPool(data);
 		if (data instanceof Collection) {
-			
-				iter+=1;
-				for(Object o : (Collection)data) {
-					workers[0].inputQueue.add(o);
-				}
-				//workers[0].setData(o);
-				// start top level worker in skeleton (which will invoke subsequent workers)
-				
-				///2nd approach////
-								
-				/*
-				if(taskExecutor.getActiveCount()<taskExecutor.getCorePoolSize()) {
-					this.taskExecutor.execute(workers[0]);					
-				}
-				else {
-					try {
-						synchronized (this) {
-							wait();
-						}
-						
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					this.taskExecutor.execute(workers[0]);
-				}
-				*/
-				//this.taskExecutor.execute(workers[0]);
-				
-				/***1st approach*/
-				//while(WorkerService.index != WorkerService.taskPool.length-1) {
-					//try {
-						// block and get result of last worker (which is effectively the result of the
-						// skeleton)
-						/**block till 1st worker is free**/
-						this.taskExecutor.execute(workers[0]);
-						//Object result = workers[0].getFuture().get();
-						// set result of last worker's future object to null -- preparing it for next iteration
-						//workers[workers.length - 1].getFuture().setResult(null);
-						//System.out.println("Iteration: " + iter + "  Result: " + result);
-						// send result for collection
-						//collectResult(result);
-					//} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-					//	e.printStackTrace();
-					//} catch (ExecutionException e) {
-						// TODO Auto-generated catch block
-					//	e.printStackTrace();
-					//} 				
-			//	}
-				/** BLOCK FOR RESULT**/
-				//workers
-				//WorkerService.resultFuture.get();
-				try {
-					workers[workers.length - 1].getFuture().get();
-				} catch (InterruptedException | ExecutionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				skelFuture.setResult(WorkerService.fetchResult(workers[workers.length-1].outputQueue));
-				}
-				
-		
+
+			iter += 1;
+			for (Object o : (Collection) data) {
+				workers[0].inputQueue.add(o);
+			}
+			// add END to tail of queue to signal end of computation to all workers
+			workers[0].inputQueue.add("END");
+			this.taskExecutor.execute(workers[0]);
+
+			try {
+				workers[workers.length - 1].getFuture().get();
+			} catch (InterruptedException | ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			skelFuture.setResult(WorkerService.fetchResult(workers[workers.length - 1].outputQueue));
+		}
+
 		this.isFinished = true;
 	}
 
@@ -182,7 +125,7 @@ public class RootWorker<O> extends Worker {
 		return this.skelFuture;
 	}
 
-		public synchronized boolean areChildTasksFinished() {
+	public synchronized boolean areChildTasksFinished() {
 		// dummy value
 		return true;
 	}
@@ -192,7 +135,5 @@ public class RootWorker<O> extends Worker {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	
-	
+
 }

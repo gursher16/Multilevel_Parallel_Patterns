@@ -22,7 +22,7 @@ public class StagedComputation {
 		
 		MPP mpp = new MPP();
 		//int size = (int)Math.pow(2, 12);
-		int size = 100;
+		int size = 1000;
 		List<Integer> in = generate(size);
 		//List<Integer> out;
 		List<Double> result = new ArrayList<>();
@@ -95,6 +95,9 @@ public class StagedComputation {
 		} catch (InterruptedException | ExecutionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		finally {
+			mpp.shutDown();
 		}
 		System.out.println("EXECUTION - FINISHED");
 		

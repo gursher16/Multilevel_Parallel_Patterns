@@ -34,14 +34,14 @@ public static void main(String args[]) {
 		Operation o1 = new Operation1();
 		//Operation o2 = new Operation2();
 		//Operation o3 = new Operation1a();
-		Skeleton<List<Integer>, List<Double>> firstStage = new SequentialOpSkeleton(o1, ArrayList.class);
+		Skeleton<List<Integer>, List<Double>> computation = new SequentialOpSkeleton(o1, ArrayList.class);
 		//Skeleton secondStage = new SequentialOpSkeleton<Integer, Integer>(o2, Integer.class);
 		//Skeleton thirdStage = new SequentialOpSkeleton<Integer, Double>(o3, Double.class);
 		
 		//Skeleton stages[] = {firstStage, secondStage, thirdStage};
 		
 		
-		Skeleton<List<List<Integer>>, List<Double>> skel1 = new FarmSkeleton(firstStage, ArrayList.class);
+		Skeleton<List<List<Integer>>, List<Double>> skel1 = new FarmSkeleton(computation,4, ArrayList.class);
 		
 		
 		////////////////////////// SEQUENTIAL OPERATION ///////////////////
