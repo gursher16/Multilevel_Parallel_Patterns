@@ -22,7 +22,7 @@ public class StagedComputation {
 		
 		MPP mpp = new MPP();
 		//int size = (int)Math.pow(2, 12);
-		int size = 1000;
+		int size = 100;
 		List<Integer> in = generate(size);
 		//List<Integer> out;
 		List<Double> result = new ArrayList<>();

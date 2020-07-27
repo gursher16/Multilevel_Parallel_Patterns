@@ -6,6 +6,6 @@ public class Constants {
 
 	}
 
-	public static final String ABC = "abc";
+	public static final String END = "END";
 
 }

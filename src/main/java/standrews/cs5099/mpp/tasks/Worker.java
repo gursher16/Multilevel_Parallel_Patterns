@@ -46,6 +46,7 @@ public abstract class Worker implements Runnable, Comparable<Worker>{
 		return taskFuture;
 	}
 	
+
 	
 	public abstract Instruction getInstruction();
 	public abstract Object getData();	

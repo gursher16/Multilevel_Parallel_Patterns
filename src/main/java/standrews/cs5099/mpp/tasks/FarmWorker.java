@@ -11,6 +11,7 @@ import standrews.cs5099.mpp.core.WorkerService;
 import standrews.cs5099.mpp.instructions.Instruction;
 import standrews.cs5099.mpp.skeletons.FarmSkeleton;
 import standrews.cs5099.mpp.skeletons.Skeleton;
+import standrews.cs5099.mpp.util.Constants;
 
 public class FarmWorker extends Worker {
 
@@ -68,7 +69,7 @@ public class FarmWorker extends Worker {
 			futureList.add(workers[workers.length - 1].getFuture());
 		}
 
-		while (this.inputQueue.peek() != "END") {
+		while (this.inputQueue.peek() != Constants.END) {
 			if (null == this.inputQueue.peek()) {
 				/** Keep waiting till non null value in input queue **/
 				continue;
@@ -84,25 +85,15 @@ public class FarmWorker extends Worker {
 			}
 		}
 
-		// Send END signal to all workers after execution
+		// Send END signal to all workers to signal no more tasks
 		for (Worker[] workers : farmWorkers) {
-			workers[0].inputQueue.offer("END");
+			workers[0].inputQueue.add(Constants.END);
 		}
-
-		//////////////////
-
-		/*
-		 * while (null != inputQueue.peek()) { this.data = inputQueue.remove(); //
-		 * taskExecutor.execute(command); Worker[] workers =
-		 * TaskBuilder.createWorkers(targetSkeleton, taskExecutor, instructionStack);
-		 * workers[0].inputQueue.add(data); taskExecutor.execute(workers[0]);
-		 * this.futureList.add(workers[workers.length - 1].getFuture()); //
-		 * this.outputQueue.addAll(workers[workers.length-1].outputQueue); //
-		 * this.outputQueue.add(result); // invoke next worker }
-		 */
-
-		///////////////////
-
+		
+		// Send END signal to all workers after execution -- USING STREAMS --
+		
+		//farmWorkers.stream().forEach((workers)-> workers[0].inputQueue.offer("END"));
+		
 		// Collect results and add to outputQueue of this worker
 		for (TaskFuture future : futureList) {
 			Object result = null;
@@ -113,12 +104,28 @@ public class FarmWorker extends Worker {
 				e.printStackTrace();
 			}
 			this.outputQueue.add(result);
-		}
-		// this.outputQueue.add(new String("END"));
-		// set success message in result to signal successful completion
-		System.out.println("SUCCESS");
-		this.taskFuture.setResult("SUCCESS");
-
+		}		
+		System.out.println("SUCCESS");		
+		this.taskFuture.setResult("SUCCESS");		
+		
+						
+		// Collect results and add to outputQueue of this worker -- USING STREAMS --
+		/*
+		futureList.stream().forEach((future) -> {
+			try {
+				Object result = future.get();
+				this.outputQueue.add(result);
+			} catch (InterruptedException | ExecutionException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		});
+		*/
+		//Thread.currentThread().interrupt();
+		/*
+		while(Thread.currentThread().isInterrupted()) {
+			System.out.println("Interrupted!!");
+		}*/
 	}
 
 	@Override

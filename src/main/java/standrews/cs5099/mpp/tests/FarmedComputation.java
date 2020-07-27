@@ -19,7 +19,7 @@ public class FarmedComputation {
 
 		MPP mpp = new MPP();
 		// int size = (int)Math.pow(2, 12);
-		int size = 100;
+		int size = 1000;
 		List<List<Integer>> chunkedInput = generateChunkedInput(size);
 		List<Integer> sequentialInput = generate(size);
 		// List<Integer> out;
@@ -28,17 +28,32 @@ public class FarmedComputation {
 
 		long startTime;
 		long endTime;
-		// create first pipeline skeleton
-		Operation o1 = new Operation1();
 	
+		/*
+		Operation o1 = new Operation1();
 		Skeleton<List<Integer>, List<Double>> computation = new SequentialOpSkeleton(o1, ArrayList.class);		
-
-		Skeleton<List<List<Integer>>, List<Double>> skel1 = new FarmSkeleton(computation, 4, ArrayList.class);
+		Skeleton<List<List<Integer>>, List<Double>> farm = new FarmSkeleton(computation, 8, ArrayList.class);
+		*/
+		
+		/* -- NESTING PIPELINE --*/
+		Operation o1 = new Operation1();
+		Operation o2 = new Operation2();
+		Operation o3 = new Operation1a();
+		Skeleton firstStage = new SequentialOpSkeleton<Integer, Integer>(o1, Integer.class);
+		Skeleton secondStage = new SequentialOpSkeleton<Integer, Integer>(o2, Integer.class);
+		Skeleton thirdStage = new SequentialOpSkeleton<Integer, Double>(o3, Double.class);
+		
+		Skeleton stages[] = {firstStage, secondStage, thirdStage};
+		Skeleton pipe = new PipelineSkeleton(stages, ArrayList.class);		
+		Skeleton<List<List<Integer>>, List<Double>> farm = new FarmSkeleton(pipe, 2, ArrayList.class);
+		
+		
 
 		////////////////////////// SEQUENTIAL OPERATION ///////////////////
 		startTime = System.currentTimeMillis();
 		for (int i : sequentialInput) {
 			double o = 1 / i;
+			o = i * 5;
 			result.add(o);
 		}
 		endTime = System.currentTimeMillis();
@@ -46,7 +61,7 @@ public class FarmedComputation {
 
 		
 		startTime = System.currentTimeMillis();
-		Future<List<Double>> outputFuture = skel1.submitData(chunkedInput);
+		Future<List<Double>> outputFuture = farm.submitData(chunkedInput);
 		try {
 			result = outputFuture.get();
 			endTime = System.currentTimeMillis();
@@ -90,7 +105,7 @@ public class FarmedComputation {
 		Random random = new Random();
 		List<List<Integer>> chunkedList = new ArrayList<>();
 		List<Integer> subList;
-		int chunkSize = 10;
+		int chunkSize = 100;
 		int chunks = size / chunkSize;
 		/*
 		 * array.add(738); array.add(591); array.add(129); array.add(577);

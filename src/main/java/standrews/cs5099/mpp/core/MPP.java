@@ -67,7 +67,9 @@ public class MPP {
 	 */
 	public void shutDown() {
 		System.out.println("Shutting down thread pool..");
-		taskExecutor.shutdown();
+		//taskExecutor.
+		taskExecutor.shutdownNow();
+		
 	}
 
 	/**

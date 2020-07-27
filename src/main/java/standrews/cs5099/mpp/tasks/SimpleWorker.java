@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutorService;
 import standrews.cs5099.mpp.core.TaskExecutor;
 import standrews.cs5099.mpp.core.WorkerService;
 import standrews.cs5099.mpp.instructions.Instruction;
+import standrews.cs5099.mpp.util.Constants;
 
 /**
  * SIMPLE OPERATION
@@ -41,32 +42,29 @@ public class SimpleWorker extends Worker {
 
 	@Override
 	public void run() {
-		
-		
-		while (this.inputQueue.peek()!="END") {
+
+		while (this.inputQueue.peek() != Constants.END) {
 			if (null == this.inputQueue.peek()) {
 				/** Keep waiting till non null value in input queue **/
-				System.out.println("Worker - waiting..");
-				//waitCount+=1;
+				// System.out.println("Worker - waiting..");
+				// waitCount+=1;
 				continue;
 			}
-			this.data = inputQueue.remove();
-			System.out.println("Worker - computing..");
+			if(this.inputQueue.peek().equals(Constants.END)) {
+				/** Break if END signal is received **/
+				break;
+			}
+			
+			this.data = this.inputQueue.remove();
+		//System.out.println("Data :" + data);
+			// System.out.println("Worker - computing..");
 			// execute instruction and store result in future
-			this.outputQueue.add(WorkerService.executeInstruction(data, instruction));
-			
-			//this.taskFuture.setResult(WorkerService.executeInstruction(data, instruction));
-		
-			
-		/*
-		this.data = inputQueue.remove();
-		// this.data = inputQueue.remove();
-		// TODO Auto-generated method stub
-		//outputQueue.add(WorkerService.executeInstruction(data, instruction));*/
-			
+			this.outputQueue.offer(WorkerService.executeInstruction(data, instruction));
+
 		}
+
 		System.out.println("Shutting down worker..");
-		this.taskFuture.setResult(this.outputQueue);		
+		this.taskFuture.setResult(this.outputQueue);
 	}
 
 	@Override

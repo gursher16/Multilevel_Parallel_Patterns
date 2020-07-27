@@ -6,6 +6,7 @@ import java.util.Stack;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.text.AbstractWriter;
@@ -13,6 +14,7 @@ import javax.swing.text.AbstractWriter;
 import standrews.cs5099.mpp.core.TaskExecutor;
 import standrews.cs5099.mpp.core.WorkerService;
 import standrews.cs5099.mpp.instructions.Instruction;
+import standrews.cs5099.mpp.util.Constants;
 
 public class PipelineWorker<O> extends Worker {
 
@@ -84,16 +86,19 @@ public class PipelineWorker<O> extends Worker {
 
 	@Override
 	public void run() {
-
+		
 		if (this.isRootPipelineWorker()) {
 			boolean isChildRunning = false;
 			
-			while (this.inputQueue.peek()!="END") {
+			while (this.inputQueue.peek()!=Constants.END) {
 				if (null == this.inputQueue.peek()) {
 					/** Keep waiting till non null value in input queue **/
 					System.out.println("STAGE 1 - waiting..");
 					waitCount+=1;
 					continue;
+				}
+				if(this.inputQueue.peek().equals(Constants.END)) {
+					break;
 				}
 				this.data = inputQueue.remove();
 				System.out.println("STAGE 1 - computing..");
@@ -107,9 +112,9 @@ public class PipelineWorker<O> extends Worker {
 				}
 			}
 			// push END to output queue to signal end of execution
-			System.out.println("ENDING- STAGE 1 !!!!");
-			System.out.println("Total waiting = " + waitCount);
-			this.outputQueue.add(new String("END"));
+			System.out.println("**************ENDING- STAGE 1 !!!!");
+			System.out.println("**************STAGE 1 waiting = " + waitCount);
+			this.outputQueue.add(Constants.END);
 
 		} else {
 			// System.out.println("Child Worker is being executed");
@@ -119,16 +124,16 @@ public class PipelineWorker<O> extends Worker {
 					synchronized (this) {
 						boolean isChildRunning = false;
 
-						while (this.getParentWorker().outputQueue.peek() != "END") {
+						while (this.getParentWorker().outputQueue.peek() != Constants.END) {
 
 							if (null == this.getParentWorker().outputQueue.peek()) {
 								
-								/** Keep waiting till non null value in inputqueue **/
+								/** Keep waiting till non null value in input queue **/
 								System.out.println("STAGE 2 - waiting..");
 								waitCount+=1;
 								continue;
 							}
-							if (this.getParentWorker().outputQueue.peek().equals("END")) {
+							if (this.getParentWorker().outputQueue.peek().equals(Constants.END)) {
 								/** If END in inputQueue then put END in outputQueue and terminate **/
 								break;
 							}
@@ -141,9 +146,9 @@ public class PipelineWorker<O> extends Worker {
 								isChildRunning = true;
 							}
 						}
-						System.out.println("ENDING - STAGE 2 !!!!");
-						System.out.println("Total waiting = " + waitCount);
-						this.outputQueue.add(new String("END"));
+						System.out.println("***********ENDING - STAGE 2 !!!!");
+						System.out.println("***********STAGE 2 waiting = " + waitCount);
+						this.outputQueue.add(Constants.END);
 						
 					}
 
@@ -152,7 +157,7 @@ public class PipelineWorker<O> extends Worker {
 					// WorkerService.executeAndCollectResult(this);
 					synchronized (this) {
 
-						while (this.getParentWorker().outputQueue.peek() != "END") {
+						while (this.getParentWorker().outputQueue.peek() != Constants.END) {
 
 							if (null == this.getParentWorker().outputQueue.peek()) {
 								/** Keep waiting till non null value in inputqueue **/
@@ -160,7 +165,7 @@ public class PipelineWorker<O> extends Worker {
 								waitCount+=1;
 								continue;
 							}
-							if (this.getParentWorker().outputQueue.peek().equals("END")) {
+							if (this.getParentWorker().outputQueue.peek().equals(Constants.END)) {
 								/** If END in inputQueue then put END in outputQueue and terminate **/
 								break;
 							}
@@ -170,8 +175,8 @@ public class PipelineWorker<O> extends Worker {
 							this.outputQueue.add(WorkerService.executePipelineWorker(this));
 
 						}
-						System.out.println("ENDING PIPELINE !!!!!");
-						System.out.println("Total waiting = " + waitCount);
+						System.out.println("**************ENDING PIPELINE !!!!!");
+						System.out.println("**************STAGE 3 waiting = " + waitCount);
 						this.taskFuture.setResult("FINISH");
 					}
 					// set future of
@@ -183,7 +188,7 @@ public class PipelineWorker<O> extends Worker {
 			}
 			// data = this.getParentWorker().getFuture()
 		}
-
+		
 		this.isFinished = true;
 	}
 

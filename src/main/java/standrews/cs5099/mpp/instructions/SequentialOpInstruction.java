@@ -22,7 +22,9 @@ public class SequentialOpInstruction implements Instruction {
 		try {
 			return sequentialOp.execute(inputParam);
 		} catch (Exception e) {
+			
 			// TODO Auto-generated catch block
+			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!! exception " + inputParam);
 			e.printStackTrace();
 		}
 		return null;

@@ -1,6 +1,8 @@
 package standrews.cs5099.mpp.core;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -30,16 +32,27 @@ public class TaskExecutor extends ThreadPoolExecutor {
 
 	@Override
 	protected void afterExecute(Runnable r, Throwable t) {
+		this.shutdown();
+		//Thread.currentThread().
+		/**
+		Future result = (Future) r;
+		try {
+			result.get();
+		} catch (InterruptedException | ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		**/
+		/**
 		Worker worker = (Worker)r;
-		if(worker instanceof PipelineWorker) {
-			// using isFinished boolean
 			if(worker.isFinished) {
+				//System.out.println("*************");
 				//((PipelineWorker) worker).getFuture().setResult(null);
 			}
+			**/
 			
 			
-			// using isFinished() of future
-		}
+		
 		
 	}
 

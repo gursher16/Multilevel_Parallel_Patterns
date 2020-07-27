@@ -8,6 +8,7 @@ import java.util.concurrent.Future;
 import standrews.cs5099.mpp.core.TaskExecutor;
 import standrews.cs5099.mpp.core.WorkerService;
 import standrews.cs5099.mpp.instructions.Instruction;
+import standrews.cs5099.mpp.util.Constants;
 
 /**
  * Wrapper for all workers
@@ -103,7 +104,7 @@ public class RootWorker<O> extends Worker {
 				workers[0].inputQueue.add(o);
 			}
 			// add END to tail of queue to signal end of computation to all workers
-			workers[0].inputQueue.add("END");
+			workers[0].inputQueue.add(Constants.END);
 			this.taskExecutor.execute(workers[0]);
 
 			try {
