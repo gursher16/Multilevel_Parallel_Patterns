@@ -5,7 +5,7 @@ import java.util.List;
 
 import standrews.cs5099.mpp.operations.Operation;
 
-public class Operation1 implements Operation<Integer, Integer> {
+public class PipelineOperation1 implements Operation<Integer, Integer> {
 
 	@Override
 	public Integer execute(Integer inputParam) throws Exception {
@@ -15,7 +15,18 @@ public class Operation1 implements Operation<Integer, Integer> {
 		 * 
 		 * } }
 		 */
-		return inputParam * 10;
+		//return inputParam * 10;
+		
+		//fibonacci
+		fib(inputParam);		
+		return inputParam;
+	}
+	
+	private static int fib(int n) {
+		if(n<=1) {
+			return n;
+		}
+		return (fib(n-1) + fib(n-2));
 	}
 
 }

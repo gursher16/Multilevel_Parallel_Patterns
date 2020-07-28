@@ -14,7 +14,7 @@ import standrews.cs5099.mpp.skeletons.PipelineSkeleton;
 import standrews.cs5099.mpp.skeletons.SequentialOpSkeleton;
 import standrews.cs5099.mpp.skeletons.Skeleton;
 
-public class StagedComputation {
+public class ThreeStagePipeline {
 
 	public static void main(String args[]) {
 		
@@ -22,20 +22,20 @@ public class StagedComputation {
 		
 		MPP mpp = new MPP();
 		//int size = (int)Math.pow(2, 12);
-		int size = 100;
+		int size = 10000;
 		List<Integer> in = generate(size);
 		//List<Integer> out;
-		List<Double> result = new ArrayList<>();
+		List<Integer> result = new ArrayList<>();
 		
 		long startTime;
 		long endTime;
 		// create first pipeline skeleton
-		Operation o1 = new Operation1();
-		Operation o2 = new Operation2();
-		Operation o3 = new Operation1a();
+		Operation o1 = new PipelineOperation1();
+		Operation o2 = new PipelineOperation2();
+		Operation o3 = new PipelineOperation3();
 		Skeleton firstStage = new SequentialOpSkeleton<Integer, Integer>(o1, Integer.class);
 		Skeleton secondStage = new SequentialOpSkeleton<Integer, Integer>(o2, Integer.class);
-		Skeleton thirdStage = new SequentialOpSkeleton<Integer, Double>(o3, Double.class);
+		Skeleton thirdStage = new SequentialOpSkeleton<Integer, Integer>(o3, Integer.class);
 		
 		Skeleton stages[] = {firstStage, secondStage, thirdStage};
 		
@@ -45,15 +45,28 @@ public class StagedComputation {
 		
 		////////////////////////// SEQUENTIAL OPERATION ///////////////////
 		startTime = System.currentTimeMillis();
-		for(int i: in) {
-			i = i * 10;
-			i = i + 111;
-			double o = i * 0.5;
-			result.add(o);
+		for(int i : in) {
+			// stage 1
+			fib(i);
+			//stage 2
+			fib(i);
+			//stage 3
+			fib(i);
 		}
 		endTime = System.currentTimeMillis();
 		System.out.println("Sequential Execution time Taken: " + (endTime - startTime));
 		
+		/*
+		startTime = System.currentTimeMillis();
+		for(int i: in) {
+			i = i * 10;
+			i = i + 111;
+			double o = i * 10;
+			result.add(o);
+		}
+		endTime = System.currentTimeMillis();
+		System.out.println("Sequential Execution time Taken: " + (endTime - startTime));
+		*/
 		
 		
 		//////////////////////////////////////////////////////////////
@@ -81,7 +94,7 @@ public class StagedComputation {
 		//List<Integer> outputList;
 		
 		startTime = System.currentTimeMillis();
-		Future<List<Double>> outputFuture = skel1.submitData(in);
+		Future<List<Integer>> outputFuture = skel1.submitData(in);
 		try {
 			result = outputFuture.get();
 			endTime = System.currentTimeMillis();
@@ -122,10 +135,18 @@ public class StagedComputation {
 		*/
 		
 		for(int i=0;i<size;i++){
-			array.add(i, random.nextInt());
+			//array.add(i, random.nextInt());
+			array.add(i,25);
 		}
 
 		return array;
+	}
+	
+	public static int fib(int n) {
+		if(n<=1) {
+			return n;
+		}
+		return (fib(n-1) + fib(n-2));
 	}
 	
 }
