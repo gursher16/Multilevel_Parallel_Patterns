@@ -1,6 +1,7 @@
 package standrews.cs5099.mpp.tasks;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.ExecutionException;
@@ -61,7 +62,8 @@ public class FarmWorker extends Worker {
 		for (int i = 0; i < noOfWorkers; i++) {
 			// create array of workers (will contain at least two workers if target skeleton
 			// is a pipeline)
-			Worker[] workers = TaskBuilder.createWorkers(targetSkeleton, taskExecutor, instructionStack);
+			Stack<Instruction> copyStack = (Stack<Instruction>) instructionStack.clone();
+			Worker[] workers = TaskBuilder.createWorkers(targetSkeleton, taskExecutor, copyStack);
 			farmWorkers.add(workers);
 			// execute the worker array
 			taskExecutor.execute(workers[0]);
@@ -103,7 +105,7 @@ public class FarmWorker extends Worker {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			this.outputQueue.add(result);
+			this.outputQueue.addAll((Collection<? extends Object>) result);
 		}		
 		System.out.println("SUCCESS");		
 		this.taskFuture.setResult("SUCCESS");		

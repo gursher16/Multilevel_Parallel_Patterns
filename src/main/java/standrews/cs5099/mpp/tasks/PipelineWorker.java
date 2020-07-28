@@ -93,7 +93,7 @@ public class PipelineWorker<O> extends Worker {
 			while (this.inputQueue.peek()!=Constants.END) {
 				if (null == this.inputQueue.peek()) {
 					/** Keep waiting till non null value in input queue **/
-					System.out.println("STAGE 1 - waiting..");
+					//System.out.println("STAGE 1 - waiting..");
 					waitCount+=1;
 					continue;
 				}
@@ -101,7 +101,7 @@ public class PipelineWorker<O> extends Worker {
 					break;
 				}
 				this.data = inputQueue.remove();
-				System.out.println("STAGE 1 - computing..");
+				//System.out.println("STAGE 1 - computing..");
 
 				Object result = WorkerService.executePipelineWorker(this);
 				this.outputQueue.offer(result);
@@ -129,7 +129,7 @@ public class PipelineWorker<O> extends Worker {
 							if (null == this.getParentWorker().outputQueue.peek()) {
 								
 								/** Keep waiting till non null value in input queue **/
-								System.out.println("STAGE 2 - waiting..");
+								//System.out.println("STAGE 2 - waiting..");
 								waitCount+=1;
 								continue;
 							}
@@ -137,7 +137,7 @@ public class PipelineWorker<O> extends Worker {
 								/** If END in inputQueue then put END in outputQueue and terminate **/
 								break;
 							}
-							System.out.println("STAGE 2 - computing..");
+							//System.out.println("STAGE 2 - computing..");
 							this.data = this.getParentWorker().outputQueue.remove();
 
 							this.outputQueue.offer(WorkerService.executePipelineWorker(this));
@@ -161,7 +161,7 @@ public class PipelineWorker<O> extends Worker {
 
 							if (null == this.getParentWorker().outputQueue.peek()) {
 								/** Keep waiting till non null value in inputqueue **/
-								System.out.println("STAGE 3 - waiting..");
+								//System.out.println("STAGE 3 - waiting..");
 								waitCount+=1;
 								continue;
 							}
@@ -169,7 +169,7 @@ public class PipelineWorker<O> extends Worker {
 								/** If END in inputQueue then put END in outputQueue and terminate **/
 								break;
 							}
-							System.out.println("STAGE 3 - computing..");
+							//System.out.println("STAGE 3 - computing..");
 							this.data = this.getParentWorker().outputQueue.remove();
 
 							this.outputQueue.add(WorkerService.executePipelineWorker(this));
@@ -177,7 +177,7 @@ public class PipelineWorker<O> extends Worker {
 						}
 						System.out.println("**************ENDING PIPELINE !!!!!");
 						System.out.println("**************STAGE 3 waiting = " + waitCount);
-						this.taskFuture.setResult("FINISH");
+						this.taskFuture.setResult(this.outputQueue);
 					}
 					// set future of
 				}

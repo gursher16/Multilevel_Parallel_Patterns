@@ -63,7 +63,7 @@ public class SimpleWorker extends Worker {
 
 		}
 
-		System.out.println("Shutting down worker..");
+		//System.out.println("Shutting down worker..");
 		this.taskFuture.setResult(this.outputQueue);
 	}
 
