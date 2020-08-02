@@ -108,7 +108,7 @@ public class FarmWorker extends Worker {
 			this.outputQueue.addAll((Collection<? extends Object>) result);
 		}		
 		System.out.println("SUCCESS");		
-		this.taskFuture.setResult("SUCCESS");		
+		this.taskFuture.setResult(this.outputQueue);		
 		
 						
 		// Collect results and add to outputQueue of this worker -- USING STREAMS --
