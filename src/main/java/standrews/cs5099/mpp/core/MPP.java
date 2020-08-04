@@ -40,7 +40,6 @@ public class MPP {
 		taskQueue = new PriorityBlockingQueue<Runnable>();
 		// initialise the executor service
 		taskExecutor = new TaskExecutor(noOfCores, noOfCores, 10, TimeUnit.SECONDS, taskQueue);
-
 		// initialise the work stealing executor service
 		// workStealingExecutor = Executors.newWorkStealingPool();
 

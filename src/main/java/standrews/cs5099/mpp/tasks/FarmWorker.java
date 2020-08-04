@@ -74,11 +74,17 @@ public class FarmWorker extends Worker {
 
 		while (this.inputQueue.peek() != Constants.END) {
 			if (null == this.inputQueue.peek()) {
+				// System.out.println("Waiting....");
 				/** Keep waiting till non null value in input queue **/
 				continue;
+			} else if (this.inputQueue.peek() == Constants.END) {
+				System.out.println("Handled Race CONDITION!!!");
+				break;
 			}
 			if (index < farmWorkers.size()) {
 				this.data = inputQueue.remove();
+				// System.out.println(data);
+				// System.out.println("Removing....");
 				Worker[] worker = farmWorkers.get(index);
 				worker[0].inputQueue.offer(data);
 				index += 1;
@@ -101,12 +107,12 @@ public class FarmWorker extends Worker {
 				e1.printStackTrace();
 			}
 		});
-		
+
 		// Send END signal to child worker to signal no more tasks
-		if(null!=this.getChildWorker()) {
+		if (null != this.getChildWorker()) {
 			this.outputQueue.add(Constants.END);
 		}
-		this.taskFuture.setResult(this.outputQueue);		
+		this.taskFuture.setResult(this.outputQueue);
 	}
 
 	@Override
