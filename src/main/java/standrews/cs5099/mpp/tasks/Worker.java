@@ -38,6 +38,14 @@ public abstract class Worker implements Runnable, Comparable<Worker>{
 		this.parentWorker = parentWorker;
 	}
 	
+	public Worker getParentWorker() {
+		return this.parentWorker;
+	}
+	
+	public Worker getChildWorker() {
+		return this.childWorker;
+	}
+	
 	public void setChildWorker (Worker childWorker) {
 		this.childWorker = childWorker;
 	}

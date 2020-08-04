@@ -8,11 +8,11 @@ import standrews.cs5099.mpp.skeletons.Skeleton;
 
 public class FarmInstruction implements Instruction {
 
-	private Stack<Instruction> targetInstructions;
+	private Stack<Instruction> subInstructionsStack;
 	private Skeleton targetSkeleton;
 	private int numberOfWorkers;
-	public FarmInstruction(Skeleton targetSkeleton, Stack<Instruction> targetInstructions, int numberOfWorkers) {
-		this.targetInstructions = targetInstructions;
+	public FarmInstruction(Skeleton targetSkeleton, Stack<Instruction> subInstructionsStack, int numberOfWorkers) {
+		this.subInstructionsStack = subInstructionsStack;
 		this.targetSkeleton = targetSkeleton;
 		this.numberOfWorkers = numberOfWorkers;
 	}
@@ -21,8 +21,8 @@ public class FarmInstruction implements Instruction {
 		return numberOfWorkers;
 	}
 		
-	public Stack<Instruction> getTargetInstructions() {
-		return targetInstructions;
+	public Stack<Instruction> getSubInstructionsStack() {
+		return subInstructionsStack;
 	}
 	
 	public Skeleton getTargetSkeleton() {

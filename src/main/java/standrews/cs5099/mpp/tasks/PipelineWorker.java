@@ -191,10 +191,7 @@ public class PipelineWorker<O> extends Worker {
 		
 		this.isFinished = true;
 	}
-
-	public Worker getchildWorker() {
-		return this.childWorker;
-	}
+	
 
 	public boolean isTaskFinished() {
 		/** dummy return value **/
@@ -204,11 +201,7 @@ public class PipelineWorker<O> extends Worker {
 	public TaskFuture getFuture() {
 
 		return this.taskFuture;
-	}
-
-	public Worker getParentWorker() {
-		return this.parentWorker;
-	}
+	}	
 
 	public PipelineWorker getParentPipelineWorker() {
 
