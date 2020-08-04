@@ -19,10 +19,6 @@ public class FarmWorker extends Worker {
 	// Actual data to be executed by the worker
 	private Object data;
 
-	// ExecutorService responsible for executing worker
-	private TaskExecutor taskExecutor;
-	// Future object which holds result of computation
-	// private TaskFuture taskFuture;
 	// Instruction to be executed by the Worker
 	private Instruction instruction;
 
@@ -71,6 +67,11 @@ public class FarmWorker extends Worker {
 			futureList.add(workers[workers.length - 1].getFuture());
 		}
 
+		// Invoke child worker if any
+		if (null != this.getChildWorker()) {
+			taskExecutor.execute(childWorker);
+		}
+
 		while (this.inputQueue.peek() != Constants.END) {
 			if (null == this.inputQueue.peek()) {
 				/** Keep waiting till non null value in input queue **/
@@ -88,46 +89,24 @@ public class FarmWorker extends Worker {
 		}
 
 		// Send END signal to all workers to signal no more tasks
-		for (Worker[] workers : farmWorkers) {
-			workers[0].inputQueue.add(Constants.END);
-		}
-		
-		// Send END signal to all workers after execution -- USING STREAMS --
-		
-		//farmWorkers.stream().forEach((workers)-> workers[0].inputQueue.offer("END"));
-		
-		// Collect results and add to outputQueue of this worker
-		for (TaskFuture future : futureList) {
-			Object result = null;
-			try {
-				result = future.get();
-			} catch (InterruptedException | ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			this.outputQueue.addAll((Collection<? extends Object>) result);
-		}		
-		System.out.println("SUCCESS");		
-		this.taskFuture.setResult(this.outputQueue);		
-		
-						
-		// Collect results and add to outputQueue of this worker -- USING STREAMS --
-		/*
+		farmWorkers.stream().forEach((workers) -> workers[0].inputQueue.add("END"));
+
+		// Collect results and add each result to outputQueue of FarmWorker
 		futureList.stream().forEach((future) -> {
 			try {
 				Object result = future.get();
-				this.outputQueue.add(result);
+				this.outputQueue.addAll((Collection<? extends Object>) result);
 			} catch (InterruptedException | ExecutionException e1) {
-				// TODO Auto-generated catch block
+
 				e1.printStackTrace();
 			}
 		});
-		*/
-		//Thread.currentThread().interrupt();
-		/*
-		while(Thread.currentThread().isInterrupted()) {
-			System.out.println("Interrupted!!");
-		}*/
+		
+		// Send END signal to child worker to signal no more tasks
+		if(null!=this.getChildWorker()) {
+			this.outputQueue.add(Constants.END);
+		}
+		this.taskFuture.setResult(this.outputQueue);		
 	}
 
 	@Override

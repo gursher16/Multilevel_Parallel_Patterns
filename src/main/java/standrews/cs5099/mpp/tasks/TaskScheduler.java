@@ -53,8 +53,7 @@ public class TaskScheduler<I, O> {
 		//SimpleWorker [] workers = taskBuilder.buildSkeleton((FarmSkeleton)targetSkeleton);
 		RootWorker<O> skeletonWorker = new RootWorker<>(inputParam, taskExecutor, workers, targetSkeleton.getOutputType());
 		this.taskExecutor.execute(skeletonWorker);
-		return skeletonWorker.getSkelFuture();
-		
+		return skeletonWorker.getSkelFuture();		
 	}
 	
 

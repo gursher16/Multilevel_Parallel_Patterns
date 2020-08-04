@@ -76,7 +76,7 @@ public class PipelineWorker<O> extends Worker {
 	 * @return
 	 */
 	public boolean isRootPipelineWorker() {
-		return (getParentPipelineWorker() == null);
+		return (getParentWorker() == null);
 	}
 
 	/**
@@ -119,26 +119,26 @@ public class PipelineWorker<O> extends Worker {
 		} else {
 			// System.out.println("Child Worker is being executed");
 			try {
-				if (null != this.getChildPipelineWorker()) {
+				if (null != this.getChildWorker()) {
 					/** CURRENT WORKER IS INTERMEDIATE WORKER IN PIPELINE **/
 					synchronized (this) {
 						boolean isChildRunning = false;
 
-						while (this.getParentWorker().outputQueue.peek() != Constants.END) {
+						while (this.inputQueue.peek() != Constants.END) {
 
-							if (null == this.getParentWorker().outputQueue.peek()) {
+							if (null == this.inputQueue.peek()) {
 								
 								/** Keep waiting till non null value in input queue **/
 								//System.out.println("STAGE 2 - waiting..");
 								waitCount+=1;
 								continue;
 							}
-							if (this.getParentWorker().outputQueue.peek().equals(Constants.END)) {
+							if (this.inputQueue.peek().equals(Constants.END)) {
 								/** If END in inputQueue then put END in outputQueue and terminate **/
 								break;
 							}
 							//System.out.println("STAGE 2 - computing..");
-							this.data = this.getParentWorker().outputQueue.remove();
+							this.data = this.inputQueue.remove();
 
 							this.outputQueue.offer(WorkerService.executePipelineWorker(this));
 							if (!isChildRunning) {
@@ -157,20 +157,20 @@ public class PipelineWorker<O> extends Worker {
 					// WorkerService.executeAndCollectResult(this);
 					synchronized (this) {
 
-						while (this.getParentWorker().outputQueue.peek() != Constants.END) {
+						while (this.inputQueue.peek() != Constants.END) {
 
-							if (null == this.getParentWorker().outputQueue.peek()) {
+							if (null == this.inputQueue.peek()) {
 								/** Keep waiting till non null value in inputqueue **/
 								//System.out.println("STAGE 3 - waiting..");
 								waitCount+=1;
 								continue;
 							}
-							if (this.getParentWorker().outputQueue.peek().equals(Constants.END)) {
+							if (this.inputQueue.peek().equals(Constants.END)) {
 								/** If END in inputQueue then put END in outputQueue and terminate **/
 								break;
 							}
 							//System.out.println("STAGE 3 - computing..");
-							this.data = this.getParentWorker().outputQueue.remove();
+							this.data = this.inputQueue.remove();
 
 							this.outputQueue.add(WorkerService.executePipelineWorker(this));
 
@@ -202,7 +202,8 @@ public class PipelineWorker<O> extends Worker {
 
 		return this.taskFuture;
 	}	
-
+	
+	/*
 	public PipelineWorker getParentPipelineWorker() {
 
 		if (this.parentWorker instanceof PipelineWorker) {
@@ -219,7 +220,8 @@ public class PipelineWorker<O> extends Worker {
 			return null;
 		}
 	}
-
+	*/
+	
 	/**
 	 * Fetch data field of a Task
 	 * 

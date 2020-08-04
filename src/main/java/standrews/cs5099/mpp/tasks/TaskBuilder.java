@@ -61,6 +61,7 @@ public class TaskBuilder {
 					// PipelineWorker worker = new PipelineWorker(taskExecutor, ins);
 					Worker worker = createSingleWorker(taskExecutor, instruction);
 					worker.setParentWorker(topWorker);
+					worker.inputQueue = worker.getParentWorker().outputQueue;
 					worker.getParentWorker().setChildWorker(worker);
 					worker.priority -= iterCount;
 					// worker.setData(worker.getParentWorker().getFuture());
@@ -70,6 +71,7 @@ public class TaskBuilder {
 					// PipelineWorker worker = new PipelineWorker(taskExecutor, ins);
 					Worker worker = createSingleWorker(taskExecutor, instruction);
 					worker.setParentWorker(intermediary);
+					worker.inputQueue = worker.getParentWorker().outputQueue;
 					worker.getParentWorker().setChildWorker(worker);
 					worker.priority -= iterCount;
 					lastWorker = worker;
@@ -83,8 +85,10 @@ public class TaskBuilder {
 				Worker worker = createSingleWorker(taskExecutor, instruction);
 				if (null != intermediary) {
 					worker.setParentWorker(intermediary);
+					worker.inputQueue = worker.getParentWorker().outputQueue;
 				} else {
 					worker.setParentWorker(topWorker);
+					worker.inputQueue = worker.getParentWorker().outputQueue;
 				}
 				// worker.setParentWorker(topWorker);
 				worker.getParentWorker().setChildWorker(worker);
