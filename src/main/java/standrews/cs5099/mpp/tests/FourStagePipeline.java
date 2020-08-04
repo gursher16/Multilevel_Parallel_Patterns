@@ -14,7 +14,7 @@ import standrews.cs5099.mpp.skeletons.PipelineSkeleton;
 import standrews.cs5099.mpp.skeletons.SequentialOpSkeleton;
 import standrews.cs5099.mpp.skeletons.Skeleton;
 
-public class ThreeStagePipeline {
+public class FourStagePipeline {
 
 	public static void main(String args[]) {
 		
@@ -35,8 +35,9 @@ public class ThreeStagePipeline {
 		Skeleton firstStage = new SequentialOpSkeleton<Integer, Integer>(o1, Integer.class);
 		Skeleton secondStage = new SequentialOpSkeleton<Integer, Integer>(o1, Integer.class);
 		Skeleton thirdStage = new SequentialOpSkeleton<Integer, Integer>(o1, Integer.class);
+		Skeleton fourthStage = new SequentialOpSkeleton<Integer, Integer>(o1, Integer.class);
 		
-		Skeleton stages[] = {firstStage, secondStage, thirdStage};
+		Skeleton stages[] = {firstStage, secondStage, thirdStage, fourthStage};
 		
 		
 		Skeleton skel1 = new PipelineSkeleton(stages, ArrayList.class);
@@ -50,6 +51,8 @@ public class ThreeStagePipeline {
 			//stage 2
 			fib(i);
 			//stage 3
+			fib(i);
+			//stage 4
 			fib(i);
 		}
 		endTime = System.currentTimeMillis();
@@ -109,7 +112,7 @@ public class ThreeStagePipeline {
 			e.printStackTrace();
 		}
 		finally {
-			mpp.shutDownNow();
+			mpp.shutDown();
 		}
 		System.out.println("EXECUTION - FINISHED");
 		

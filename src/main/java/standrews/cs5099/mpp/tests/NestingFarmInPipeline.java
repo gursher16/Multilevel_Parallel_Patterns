@@ -32,12 +32,12 @@ public class NestingFarmInPipeline   {
 		/* -- NESTING PIPELINE --*/
 		Operation o1 = new PipelineOperation1();
 		Operation o2 = new NestedFarmOperation();
-		Operation o3 = new PipelineOperation3();
+		
 		Skeleton firstStage = new SequentialOpSkeleton<Integer, Integer>(o1, Integer.class);
 		//Skeleton farmComputation = 
 		Skeleton secondStage = new SequentialOpSkeleton<Integer, Integer>(o2, Integer.class);
 		Skeleton<Integer, Double> farm = new FarmSkeleton(secondStage, 2, ArrayList.class);		
-		Skeleton thirdStage = new SequentialOpSkeleton<Integer, Integer>(o3, Integer.class);
+		Skeleton thirdStage = new SequentialOpSkeleton<Integer, Integer>(o1, Integer.class);
 		
 		Skeleton stages[] = {firstStage, farm, thirdStage};
 		Skeleton pipe = new PipelineSkeleton(stages, ArrayList.class);		

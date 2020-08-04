@@ -30,7 +30,7 @@ public class SimpleTaskFarm {
 		
 		Operation o1 = new FarmOperation1();
 		Skeleton<List<Integer>, List<Double>> computation = new SequentialOpSkeleton(o1, ArrayList.class);		
-		Skeleton<List<List<Integer>>, List<Double>> farm = new FarmSkeleton(computation, 8, ArrayList.class);
+		Skeleton<List<List<Integer>>, List<Double>> farm = new FarmSkeleton(computation, 4, ArrayList.class);
 		
 		
 				
