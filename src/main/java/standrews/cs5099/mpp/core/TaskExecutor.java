@@ -24,36 +24,25 @@ public class TaskExecutor extends ThreadPoolExecutor {
 	 * @param unit
 	 * @param workQueue
 	 */
+	
+	private boolean exitNow;
+	
 	public TaskExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit,
 			BlockingQueue<Runnable> workQueue) {
 		super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
+		exitNow = false;
 		// TODO Auto-generated constructor stub
+	}
+	
+	public void setExitNow() {
+		exitNow = true;
 	}
 
 	@Override
 	protected void afterExecute(Runnable r, Throwable t) {
-		this.shutdown();
-		//Thread.currentThread().
-		/**
-		Future result = (Future) r;
-		try {
-			result.get();
-		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		**/
-		/**
-		Worker worker = (Worker)r;
-			if(worker.isFinished) {
-				//System.out.println("*************");
-				//((PipelineWorker) worker).getFuture().setResult(null);
-			}
-			**/
-			
-			
-		
-		
+		if(exitNow) {
+			this.shutdownNow();			
+		}		
 	}
 
 }
