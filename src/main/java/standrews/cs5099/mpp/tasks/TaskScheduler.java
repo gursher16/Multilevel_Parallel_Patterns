@@ -40,26 +40,10 @@ public class TaskScheduler<I, O> {
 		this.taskExecutor = taskExecutor;
 	}
 
-	/**
-	 * Method that submits a task to the executor service for execution
-	 * 
-	 * @param inputParam
-	 * @return
-	 */
-	public Future<O> scheduleNewTaskForExecution(I inputParam) {
-
-		InstructionsBuilder instructionsBuilder = new InstructionsBuilder();
-		targetSkeleton.buildInstructions(instructionsBuilder);
-		// create a new task
-		MPPTask task = new MPPTask(inputParam, taskExecutor, instructionsBuilder.getInstructionsStack());
-		// submit the task for execution
-		this.taskExecutor.execute(task);
-		return (Future<O>) task.getFuture();
-	}
 	
 	
 	/*************/
-	public Future<O> scheduleNewTaskForExecutionPipeLine(I inputParam) {
+	public Future<O> scheduleNewTaskForExecution(I inputParam) {
 		
 		List<PipelineWorker> taskList = new ArrayList<>();
 		InstructionsBuilder instructionsBuilder = new InstructionsBuilder();

@@ -14,7 +14,6 @@ import java.util.TreeSet;
 import java.util.Vector;
 
 import standrews.cs5099.mpp.instructions.Instruction;
-import standrews.cs5099.mpp.tasks.MPPTask;
 import standrews.cs5099.mpp.tasks.PipelineWorker;
 import standrews.cs5099.mpp.tasks.TaskFuture;
 import standrews.cs5099.mpp.tasks.Worker;
@@ -39,7 +38,7 @@ public class WorkerService {
 	// Future object for the result of the skeleton execution
 	public static TaskFuture resultFuture;
 	
-	
+	/*
 	public static Object executeTask(MPPTask task) {
 		Object data = task.getData();
 		Stack<Instruction> instructionStack = task.getInstructions();
@@ -60,7 +59,7 @@ public class WorkerService {
 		}
 		return task;
 
-	}
+	}*/
 	
 	public static synchronized Object fetchTask() {
 		Object task = taskPool[index];
@@ -177,31 +176,7 @@ public class WorkerService {
 		
 //	}
 
-	/*************** FARM WORKER ***********/
-
-	public static Object farmWorker(MPPTask task) {
-		Object data = task.getData();
-		Stack<Instruction> instructionStack = task.getInstructions();
-
-		try {
-			// store any child instructions
-			List<Stack<Instruction>> childInstructions = new ArrayList<Stack<Instruction>>();
-
-			while (!instructionStack.isEmpty() && childInstructions.size() <= 0) {
-				Instruction instruction = instructionStack.pop();
-				data = instruction.executeInstruction(data, instructionStack, childInstructions);
-				// if(task.is)
-
-			}
-			task.setData(data);
-		} catch (Exception e) {
-
-		}
-		return task;
-
-	}
-
-	/***************/
+	
 
 	public static void notifyParent(PipelineWorker task) {
 

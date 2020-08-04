@@ -19,7 +19,7 @@ public class MPP {
 	private TaskExecutor taskExecutor;
 
 	// Responsible for executing tasks in a work stealing thread pool
-	//private ExecutorService workStealingExecutor;
+	// private ExecutorService workStealingExecutor;
 
 	// The number of threads in the thread pool
 	private int noOfCores;
@@ -63,13 +63,25 @@ public class MPP {
 	}
 
 	/**
-	 * Shut down the executor service
+	 * Signals shutdown of executor service. Non-waiting threads will continue to
+	 * run.
 	 */
 	public void shutDown() {
+		System.out.println("Shutting down worker thread..");
+		// taskExecutor.
+		taskExecutor.shutdown();
+
+	}
+
+	/**
+	 * Signals end of parallel execution. Attempts to shut down any remaining
+	 * non-waiting thread.
+	 */
+	public void shutDownNow() {
 		System.out.println("Shutting down thread pool..");
-		//taskExecutor.
+		// taskExecutor.
 		taskExecutor.shutdownNow();
-		
+
 	}
 
 	/**

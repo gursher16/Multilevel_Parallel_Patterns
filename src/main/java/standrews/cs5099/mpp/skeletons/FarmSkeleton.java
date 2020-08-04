@@ -34,7 +34,7 @@ public class FarmSkeleton<I, O> implements Skeleton<I, O> {
 	public Future<O> submitData(I inputData) {
 		MPP mpp = MPP.getMppInstance();
 		TaskScheduler<I, O> taskScheduler = mpp.createTaskScheduler(this);
-		return taskScheduler.scheduleNewTaskForExecutionPipeLine(inputData);
+		return taskScheduler.scheduleNewTaskForExecution(inputData);
 	}
 
 	@Override
