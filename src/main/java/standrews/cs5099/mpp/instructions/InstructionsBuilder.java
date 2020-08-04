@@ -87,9 +87,9 @@ public class InstructionsBuilder {
 	 * @param seqOpSkeleton
 	 */
 	public <I, O> void traverse(SequentialOpSkeleton<I, O> seqOpSkeleton) {
-		instructionStack.push(new SequentialOpInstruction(seqOpSkeleton.getSequentialOperation()));
+		instructionStack.push(new SeqOpInstruction(seqOpSkeleton.getSequentialOperation()));
 	}
-	
+
 	/**
 	 * Push a Farm Instruction
 	 * 
@@ -100,7 +100,10 @@ public class InstructionsBuilder {
 	public <I, O> void traverse(FarmSkeleton<I, O> farmSkeleton) {
 		InstructionsBuilder builder = new InstructionsBuilder();
 		farmSkeleton.getTargetSkeleton().buildInstructions(builder);
-		instructionStack.addAll(builder.getInstructionsStack());		
+		FarmInstruction farmInstruction = new FarmInstruction(farmSkeleton.getTargetSkeleton(),
+				builder.getInstructionsStack(), farmSkeleton.getNumberOfWorkers());
+		instructionStack.push(farmInstruction);
+		// instructionStack.addAll(builder.getInstructionsStack());
 	}
 
 	public Stack<Instruction> getInstructionsStack() {

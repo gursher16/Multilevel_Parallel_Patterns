@@ -6,8 +6,6 @@ import java.util.Stack;
 
 import standrews.cs5099.mpp.core.TaskExecutor;
 import standrews.cs5099.mpp.instructions.Instruction;
-import standrews.cs5099.mpp.instructions.PipelineInstruction;
-import standrews.cs5099.mpp.instructions.SequentialOpInstruction;
 import standrews.cs5099.mpp.skeletons.FarmSkeleton;
 import standrews.cs5099.mpp.skeletons.PipelineSkeleton;
 import standrews.cs5099.mpp.skeletons.SequentialOpSkeleton;
