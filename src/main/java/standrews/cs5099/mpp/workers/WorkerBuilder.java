@@ -1,4 +1,4 @@
-package standrews.cs5099.mpp.tasks;
+package standrews.cs5099.mpp.workers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import standrews.cs5099.mpp.skeletons.PipelineSkeleton;
 import standrews.cs5099.mpp.skeletons.SequentialOpSkeleton;
 import standrews.cs5099.mpp.skeletons.Skeleton;
 
-public class TaskBuilder {
+public class WorkerBuilder {
 
 	public static Worker[] createWorkers(Skeleton<?, ?> targetSkeleton, TaskExecutor taskExecutor,
 			Stack<Instruction> instructionStack) {

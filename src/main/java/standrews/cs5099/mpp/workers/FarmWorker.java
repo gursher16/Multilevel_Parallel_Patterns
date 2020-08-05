@@ -1,4 +1,4 @@
-package standrews.cs5099.mpp.tasks;
+package standrews.cs5099.mpp.workers;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,7 +59,7 @@ public class FarmWorker extends Worker {
 			// create array of workers (will contain at least two workers if target skeleton
 			// is a pipeline)
 			Stack<Instruction> copyStack = (Stack<Instruction>) instructionStack.clone();
-			Worker[] workers = TaskBuilder.createWorkers(targetSkeleton, taskExecutor, copyStack);
+			Worker[] workers = WorkerBuilder.createWorkers(targetSkeleton, taskExecutor, copyStack);
 			farmWorkers.add(workers);
 			// execute the worker array
 			taskExecutor.execute(workers[0]);

@@ -6,7 +6,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import standrews.cs5099.mpp.skeletons.Skeleton;
-import standrews.cs5099.mpp.tasks.TaskScheduler;
 
 /**
  * Main entry point
@@ -46,7 +45,7 @@ public class MPP {
 	}
 
 	/**
-	 * Factory method for creating a {@link TaskScheduler} for a given
+	 * Factory method for creating a {@link WorkScheduler} for a given
 	 * <code>Skeleton</code>
 	 * 
 	 * @param <I>
@@ -54,11 +53,11 @@ public class MPP {
 	 * @param skeleton
 	 * @return
 	 */
-	public <I, O> TaskScheduler<I, O> createTaskScheduler(Skeleton<I, O> skeleton) {
+	public <I, O> WorkScheduler<I, O> createTaskScheduler(Skeleton<I, O> skeleton) {
 		if (null == skeleton) {
 			throw new IllegalArgumentException("Skeleton cannot be null!");
 		}
-		return new TaskScheduler(skeleton, taskExecutor);
+		return new WorkScheduler(skeleton, taskExecutor);
 	}
 
 	/**

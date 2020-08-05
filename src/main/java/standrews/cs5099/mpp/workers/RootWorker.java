@@ -1,4 +1,4 @@
-package standrews.cs5099.mpp.tasks;
+package standrews.cs5099.mpp.workers;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;

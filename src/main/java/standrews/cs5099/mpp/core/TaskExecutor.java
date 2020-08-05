@@ -6,8 +6,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import standrews.cs5099.mpp.tasks.PipelineWorker;
-import standrews.cs5099.mpp.tasks.Worker;
+import standrews.cs5099.mpp.workers.PipelineWorker;
+import standrews.cs5099.mpp.workers.Worker;
 /**
  * Wrapper class for configuring behaviour of the ExecutorService
  * 
@@ -27,7 +27,7 @@ public class TaskExecutor extends ThreadPoolExecutor {
 	
 	private boolean exitNow;
 	
-	public TaskExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit,
+	TaskExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit,
 			BlockingQueue<Runnable> workQueue) {
 		super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
 		exitNow = false;
