@@ -58,7 +58,7 @@ public class RootWorker<O> extends Worker {
 		System.out.println("MAIN WORKER INITIATED");
 		WorkerService.createInstanceOfResult(outputType);
 		executeSkeleton();
-		
+
 	}
 
 	public boolean isTaskFinished() {
@@ -115,7 +115,6 @@ public class RootWorker<O> extends Worker {
 			}
 			skelFuture.setResult(WorkerService.fetchResult(workers[workers.length - 1].outputQueue));
 		}
-		this.taskExecutor.setExitNow();
 		this.isFinished = true;
 	}
 

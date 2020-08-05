@@ -41,6 +41,7 @@ public class MPP {
 		taskExecutor = new TaskExecutor(noOfCores, noOfCores, 10, TimeUnit.SECONDS, taskQueue);
 		// initialise the work stealing executor service
 		// workStealingExecutor = Executors.newWorkStealingPool();
+		mppSingletonInstance = this;
 
 	}
 
@@ -60,26 +61,33 @@ public class MPP {
 		return new WorkScheduler(skeleton, taskExecutor);
 	}
 
+	
+	
 	/**
 	 * Signals shutdown of executor service. Non-waiting threads will continue to
-	 * run.
+	 * run for a minute before the service is forcefully shut down
+	 * </br>Citation:</br>
+	 * Title:    Interface ExecutorService</br>
+	 * Author:   Oracle and/or its affiliates</br>
+	 * Version:  Java SE 7</br>
+	 * URL:<a href="#{@link}">{@link https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html}</a></br>
 	 */
 	public void shutDown() {
-		System.out.println("Shutting down worker thread..");
-		// taskExecutor.
 		taskExecutor.shutdown();
-
-	}
-
-	/**
-	 * Signals end of parallel execution. Attempts to shut down any remaining
-	 * non-waiting thread.
-	 */
-	public void shutDownNow() {
-		System.out.println("Shutting down thread pool..");
-		// taskExecutor.
-		taskExecutor.shutdownNow();
-
+		try {
+			// Wait a while for existing tasks to terminate
+			if (!taskExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
+				taskExecutor.shutdownNow(); // Cancel currently executing tasks
+				// Wait a while for tasks to respond to being cancelled
+				if (!taskExecutor.awaitTermination(60, TimeUnit.SECONDS))
+					System.err.println("Pool did not terminate");
+			}
+		} catch (InterruptedException ie) {
+			// (Re-)Cancel if current thread also interrupted
+			taskExecutor.shutdownNow();
+			// Preserve interrupt status
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	/**

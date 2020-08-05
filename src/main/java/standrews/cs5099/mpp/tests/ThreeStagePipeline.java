@@ -109,7 +109,7 @@ public class ThreeStagePipeline {
 			e.printStackTrace();
 		}
 		finally {
-			mpp.shutDownNow();
+			mpp.shutDown();
 		}
 		System.out.println("EXECUTION - FINISHED");
 		
