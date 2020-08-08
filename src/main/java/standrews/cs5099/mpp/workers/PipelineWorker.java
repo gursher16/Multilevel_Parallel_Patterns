@@ -1,15 +1,7 @@
 package standrews.cs5099.mpp.workers;
 
-import java.util.List;
-import java.util.Queue;
-import java.util.Stack;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import javax.swing.text.AbstractWriter;
 
 import standrews.cs5099.mpp.core.TaskExecutor;
 import standrews.cs5099.mpp.core.WorkerService;
@@ -170,12 +162,17 @@ public class PipelineWorker<O> extends Worker {
 							}
 							// System.out.println("STAGE 3 - computing..");
 							this.data = this.inputQueue.remove();
-
-							this.outputQueue.add(WorkerService.executePipelineWorker(this));
-
+							
+							if(null!=this.farmWorker) {// Compute and add result to output queue of FarmWorker if this pipeline is farmed
+								this.farmWorker.outputQueue.add(WorkerService.executePipelineWorker(this));
+							}
+							else {// Compute and add result to output queue
+								this.outputQueue.add(WorkerService.executePipelineWorker(this));
+							}
 						}
 						System.out.println("**************ENDING PIPELINE !!!!!");
 						System.out.println("**************STAGE 3 waiting = " + waitCount);
+						
 						this.taskFuture.setResult(this.outputQueue);
 					}
 					// set future of

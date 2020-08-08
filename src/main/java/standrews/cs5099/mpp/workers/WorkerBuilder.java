@@ -18,14 +18,28 @@ public class WorkerBuilder {
 			Stack<Instruction> instructionStack) {
 		Worker[] workers = null;
 		if (targetSkeleton instanceof PipelineSkeleton) {
-			workers = createWorkers((PipelineSkeleton) targetSkeleton, taskExecutor, instructionStack);
+			workers = createWorkers((PipelineSkeleton) targetSkeleton, taskExecutor, instructionStack, null);
 		} else if (targetSkeleton instanceof SequentialOpSkeleton) {
-			workers = createWorkers((SequentialOpSkeleton) targetSkeleton, taskExecutor, instructionStack);
+			workers = createWorkers((SequentialOpSkeleton) targetSkeleton, taskExecutor, instructionStack, null);
 		} else {
 			workers = createWorkers((FarmSkeleton) targetSkeleton, taskExecutor, instructionStack);
 		}
 		return workers;
 	}
+	
+	public static Worker[] createWorkers(Skeleton<?, ?> targetSkeleton, TaskExecutor taskExecutor,
+			Stack<Instruction> instructionStack, FarmWorker farmWorker) {
+		Worker[] workers = null;
+		if (targetSkeleton instanceof PipelineSkeleton) {
+			workers = createWorkers((PipelineSkeleton) targetSkeleton, taskExecutor, instructionStack, farmWorker);
+		} else if (targetSkeleton instanceof SequentialOpSkeleton) {
+			workers = createWorkers((SequentialOpSkeleton) targetSkeleton, taskExecutor, instructionStack, farmWorker);
+		} else {
+			workers = createWorkers((FarmSkeleton) targetSkeleton, taskExecutor, instructionStack);
+		}
+		return workers;
+	}
+
 
 	/**
 	 * Method to build workers in a pipeline
@@ -35,9 +49,8 @@ public class WorkerBuilder {
 	 * @param instructionStack
 	 * @return
 	 */
-	@SuppressWarnings("rawtypes")
 	private static Worker[] createWorkers(PipelineSkeleton<?, ?> targetSkeleton, TaskExecutor taskExecutor,
-			Stack<Instruction> instructionStack) {
+			Stack<Instruction> instructionStack, FarmWorker farmWorker) {
 
 		int iterCount = 0;
 		int stackSize = instructionStack.size();
@@ -52,28 +65,32 @@ public class WorkerBuilder {
 			// top level worker
 			if (iterCount == 1) {
 				// topWorker = new PipelineWorker(taskExecutor, ins);
-				topWorker = createSingleWorker(taskExecutor, instruction);
+				topWorker = createWorkerBasedOnInstruction(taskExecutor, instruction);
 				workerList.add(topWorker);
 
 			} else if (iterCount == stackSize) { /* CREATION OF LAST STAGE */
 
 				if (null == intermediary) { // if pipeline has only two stages
 					// PipelineWorker worker = new PipelineWorker(taskExecutor, ins);
-					Worker worker = createSingleWorker(taskExecutor, instruction);
+					Worker worker = createWorkerBasedOnInstruction(taskExecutor, instruction);
 					worker.setParentWorker(topWorker);
 					worker.inputQueue = worker.getParentWorker().outputQueue;
 					worker.getParentWorker().setChildWorker(worker);
 					worker.priority -= iterCount;
+					// set farmWorker for last stage if the pipeline is farmed
+					worker.farmWorker=farmWorker;					
 					// worker.setData(worker.getParentWorker().getFuture());
 					lastWorker = worker;
 					workerList.add(lastWorker);
 				} else { // if pipeline has multiple stages
 					// PipelineWorker worker = new PipelineWorker(taskExecutor, ins);
-					Worker worker = createSingleWorker(taskExecutor, instruction);
+					Worker worker = createWorkerBasedOnInstruction(taskExecutor, instruction);
 					worker.setParentWorker(intermediary);
 					worker.inputQueue = worker.getParentWorker().outputQueue;
 					worker.getParentWorker().setChildWorker(worker);
 					worker.priority -= iterCount;
+					// set farmWorker for last stage if the pipeline is farmed
+					worker.farmWorker=farmWorker;					
 					lastWorker = worker;
 					workerList.add(lastWorker);
 				}
@@ -82,7 +99,7 @@ public class WorkerBuilder {
 			else { /* CREATION OF INTERMEDIARY STAGES */
 				// create intermediary worker and link to output of top worker
 				// PipelineWorker worker = new PipelineWorker(taskExecutor, ins);
-				Worker worker = createSingleWorker(taskExecutor, instruction);
+				Worker worker = createWorkerBasedOnInstruction(taskExecutor, instruction);
 				if (null != intermediary) {
 					worker.setParentWorker(intermediary);
 					worker.inputQueue = worker.getParentWorker().outputQueue;
@@ -109,7 +126,7 @@ public class WorkerBuilder {
 	 * @param instruction
 	 * @return
 	 */
-	private static Worker createSingleWorker(TaskExecutor taskExecutor, Instruction instruction) {
+	private static Worker createWorkerBasedOnInstruction(TaskExecutor taskExecutor, Instruction instruction) {
 		Worker worker;
 		if (instruction instanceof FarmInstruction) {
 			worker = new FarmWorker(taskExecutor, ((FarmInstruction) instruction).getTargetSkeleton(),
@@ -149,10 +166,10 @@ public class WorkerBuilder {
 	 * @return
 	 */
 	private static Worker[] createWorkers(SequentialOpSkeleton<?, ?> seqSkeleton, TaskExecutor taskExecutor,
-			Stack<Instruction> instructionStack) {
+			Stack<Instruction> instructionStack, FarmWorker farmWorker) {
 		Stack<Instruction> cloneStack = (Stack<Instruction>) instructionStack.clone();
 		Worker[] workers = null;
-		workers = new Worker[] { new SimpleWorker(taskExecutor, cloneStack.pop()) };
+		workers = new Worker[] { new SimpleWorker(taskExecutor, cloneStack.pop(), farmWorker) };		
 		return workers;
 	}
 

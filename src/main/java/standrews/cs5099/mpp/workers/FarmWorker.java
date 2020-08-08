@@ -1,16 +1,13 @@
 package standrews.cs5099.mpp.workers;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 import standrews.cs5099.mpp.core.TaskExecutor;
-import standrews.cs5099.mpp.core.WorkerService;
 import standrews.cs5099.mpp.instructions.Instruction;
-import standrews.cs5099.mpp.skeletons.FarmSkeleton;
 import standrews.cs5099.mpp.skeletons.Skeleton;
 import standrews.cs5099.mpp.util.Constants;
 
@@ -59,7 +56,7 @@ public class FarmWorker extends Worker {
 			// create array of workers (will contain at least two workers if target skeleton
 			// is a pipeline)
 			Stack<Instruction> copyStack = (Stack<Instruction>) instructionStack.clone();
-			Worker[] workers = WorkerBuilder.createWorkers(targetSkeleton, taskExecutor, copyStack);
+			Worker[] workers = WorkerBuilder.createWorkers(targetSkeleton, taskExecutor, copyStack, this);
 			farmWorkers.add(workers);
 			// execute the worker array
 			taskExecutor.execute(workers[0]);
@@ -87,6 +84,9 @@ public class FarmWorker extends Worker {
 				// System.out.println("Removing....");
 				Worker[] worker = farmWorkers.get(index);
 				worker[0].inputQueue.offer(data);
+				/*** Try and get result of farmworker and insert result in outputQueue **/
+
+				/***/
 				index += 1;
 				if (index == farmWorkers.size()) {
 					index = 0;
@@ -100,8 +100,10 @@ public class FarmWorker extends Worker {
 		// Collect results and add each result to outputQueue of FarmWorker
 		futureList.stream().forEach((future) -> {
 			try {
+				// Block for result
 				Object result = future.get();
-				this.outputQueue.addAll((Collection<? extends Object>) result);
+				// this.outputQueue.addAll((Collection<? extends Object>) result);
+				//this.outputQueue.add(Constants.END);
 			} catch (InterruptedException | ExecutionException e1) {
 
 				e1.printStackTrace();

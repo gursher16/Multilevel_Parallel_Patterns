@@ -24,19 +24,20 @@ public class SimpleWorker extends Worker {
 	// Queue<Object> outputQueue;
 
 	/**
-	 * Constructor for Root Worker
+	 * Constructs a SimpleWorker
 	 * 
-	 * @param data
-	 * @param assignedTaskExecutor
+	 * @param taskExecutor
+	 * @param instruction
+	 * @param farmworker
 	 */
-	public SimpleWorker(ExecutorService taskExecutor, Instruction instruction) {
+	public SimpleWorker(ExecutorService taskExecutor, Instruction instruction, FarmWorker farmWorker) {
 
-		// this.rootWorker = this;
 		this.taskExecutor = (TaskExecutor) taskExecutor;
 		this.instruction = instruction;
 		this.taskFuture = new TaskFuture(this.taskExecutor, this);
 		this.priority = 10000;
 		this.isFinished = false;
+		this.farmWorker = farmWorker;
 
 	}
 
@@ -50,21 +51,26 @@ public class SimpleWorker extends Worker {
 				// waitCount+=1;
 				continue;
 			}
-			if(this.inputQueue.peek().equals(Constants.END)) {
+			if (this.inputQueue.peek().equals(Constants.END)) {
 				/** Break if END signal is received **/
 				break;
 			}
-			
+
 			this.data = this.inputQueue.remove();
-		//System.out.println("Data :" + data);
+			// System.out.println("Data :" + data);
 			// System.out.println("Worker - computing..");
 			// execute instruction and store result in future
-			this.outputQueue.offer(WorkerService.executeInstruction(data, instruction));
+			if (null != this.farmWorker) {
+				this.farmWorker.outputQueue.offer(WorkerService.executeInstruction(data, instruction));
+			} else {
+				this.outputQueue.offer(WorkerService.executeInstruction(data, instruction));
+			}
 
 		}
 
-		//System.out.println("Shutting down worker..");
 		this.taskFuture.setResult(this.outputQueue);
+		// System.out.println("Shutting down worker..");
+
 	}
 
 	@Override

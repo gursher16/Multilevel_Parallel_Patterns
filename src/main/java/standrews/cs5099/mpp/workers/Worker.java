@@ -18,7 +18,8 @@ public abstract class Worker implements Runnable, Comparable<Worker>{
 	protected TaskFuture taskFuture;
 	protected TaskExecutor taskExecutor;
 	protected RootWorker rootWorker;
-	
+	// used when a worker is farmed 
+	protected FarmWorker farmWorker;
 	
 	Worker() {
 		// Initialize input.output queues for each worker
