@@ -61,9 +61,9 @@ public class SimpleWorker extends Worker {
 			// System.out.println("Worker - computing..");
 			// execute instruction and store result in future
 			if (null != this.farmWorker) {
-				this.farmWorker.outputQueue.offer(WorkerService.executeInstruction(data, instruction));
+				this.farmWorker.outputQueue.offer(WorkerService.executeWorker(this));
 			} else {
-				this.outputQueue.offer(WorkerService.executeInstruction(data, instruction));
+				this.outputQueue.offer(WorkerService.executeWorker(this));
 			}
 
 		}
@@ -76,13 +76,13 @@ public class SimpleWorker extends Worker {
 	@Override
 	public Object getData() {
 		// TODO Auto-generated method stub
-		return null;
+		return this.data;
 	}
 
 	@Override
 	public Instruction getInstruction() {
 		// TODO Auto-generated method stub
-		return null;
+		return this.instruction;
 	}
 
 }

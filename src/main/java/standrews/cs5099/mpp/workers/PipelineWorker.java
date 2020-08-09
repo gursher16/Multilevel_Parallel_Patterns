@@ -94,7 +94,7 @@ public class PipelineWorker<O> extends Worker {
 					this.data = inputQueue.remove();
 					// System.out.println("STAGE 1 - computing..");
 
-					Object result = WorkerService.executePipelineWorker(this);
+					Object result = WorkerService.executeWorker(this);
 					this.outputQueue.offer(result);
 					if (!isChildRunning) {
 						// invoke next worker
@@ -131,7 +131,7 @@ public class PipelineWorker<O> extends Worker {
 							// System.out.println("STAGE 2 - computing..");
 							this.data = this.inputQueue.remove();
 
-							this.outputQueue.offer(WorkerService.executePipelineWorker(this));
+							this.outputQueue.offer(WorkerService.executeWorker(this));
 							if (!isChildRunning) {
 								taskExecutor.execute(this.childWorker);
 								isChildRunning = true;
@@ -164,10 +164,10 @@ public class PipelineWorker<O> extends Worker {
 							this.data = this.inputQueue.remove();
 							
 							if(null!=this.farmWorker) {// Compute and add result to output queue of FarmWorker if this pipeline is farmed
-								this.farmWorker.outputQueue.add(WorkerService.executePipelineWorker(this));
+								this.farmWorker.outputQueue.add(WorkerService.executeWorker(this));
 							}
 							else {// Compute and add result to output queue
-								this.outputQueue.add(WorkerService.executePipelineWorker(this));
+								this.outputQueue.add(WorkerService.executeWorker(this));
 							}
 						}
 						System.out.println("**************ENDING PIPELINE !!!!!");

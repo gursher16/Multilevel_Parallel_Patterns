@@ -29,8 +29,8 @@ public class SequentialOpSkeleton<I, O> implements Skeleton<I, O> {
 	public Future<O> submitData(I inputData) {
 		
 		MPP mpp = MPP.getMppInstance();
-		WorkScheduler<I, O> taskScheduler = mpp.createTaskScheduler(this);
-		return taskScheduler.scheduleNewTaskForExecution(inputData);
+		WorkScheduler<I, O> workScheduler = mpp.createWorkScheduler(this);
+		return workScheduler.createWorkersAndExecute(inputData);
 	}
 
 	@Override

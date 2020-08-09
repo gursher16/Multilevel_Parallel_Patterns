@@ -96,7 +96,7 @@ public class RootWorker<O> extends Worker {
 
 	public void executeSkeleton() {
 		int iter = 0;
-		WorkerService.initializeTaskPool(data);
+		
 		if (data instanceof Collection) {
 
 			iter += 1;

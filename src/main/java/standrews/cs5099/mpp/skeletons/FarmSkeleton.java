@@ -7,7 +7,6 @@ import standrews.cs5099.mpp.core.WorkScheduler;
 import standrews.cs5099.mpp.instructions.InstructionsBuilder;
 
 /**
- * Represents a Farm Skeleton
  * 
  * @author Gursher
  *
@@ -33,8 +32,8 @@ public class FarmSkeleton<I, O> implements Skeleton<I, O> {
 	@Override
 	public Future<O> submitData(I inputData) {
 		MPP mpp = MPP.getMppInstance();
-		WorkScheduler<I, O> taskScheduler = mpp.createTaskScheduler(this);
-		return taskScheduler.scheduleNewTaskForExecution(inputData);
+		WorkScheduler<I, O> workScheduler = mpp.createWorkScheduler(this);
+		return workScheduler.createWorkersAndExecute(inputData);
 	}
 
 	@Override

@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Stack;
@@ -19,36 +18,26 @@ import standrews.cs5099.mpp.workers.TaskFuture;
 import standrews.cs5099.mpp.workers.Worker;
 
 /**
- * Core service which executes a {@link Worker}
+ * Utility class used by instances of {@link Worker} to perform various actions.
  * 
  * @author Gursher
  *
  */
 public class WorkerService {
-	/**
-	 * Method that executes a given Task
-	 */
 
-	public static List<PipelineWorker> listOfTasks;
+	// Holds the result of the skeleton execution
 	public static Collection result;
-	public static Object[] taskPool;
-	public static int index = 0;
 
 	// Future object for the result of the skeleton execution
 	public static TaskFuture resultFuture;
 
-	public static synchronized Object fetchTask() {
-		Object task = taskPool[index];
-		index += 1;
-		return task;
-	}
-
-	public static void initializeTaskPool(Object input) {
-		if (input instanceof Collection) {
-			taskPool = ((Collection) input).toArray();
-		}
-	}
-
+	/**
+	 * Creates an {@link Collection} instance for storing result of the skeleton
+	 * execution based on the given <code>outputType</code> parameter
+	 * 
+	 * @param outputType The type of output - has to be an implementation of
+	 *                   {@link Collection}
+	 */
 	public static void createInstanceOfResult(Class<?> outputType) {
 		if (outputType.equals(ArrayList.class)) {
 			result = new ArrayList<Object>();
@@ -71,26 +60,26 @@ public class WorkerService {
 		}
 	}
 
-	public static Object executePipelineWorker(Worker worker) {
+	/**
+	 * Executes the {@link Instruction} held by a {@link Worker}
+	 * 
+	 * @param worker The <code>Worker</code> holding an <code>Instruction</code>
+	 * @return Returns result of executing an <code>Instruction</code>
+	 */
+	public static Object executeWorker(Worker worker) {
 		Object data = worker.getData();
 		data = worker.getInstruction().executeInstruction(data, null, null);
 		return data;
 	}
 
-	public static Object executeInstruction(Object data, Instruction instruction) {
-		return instruction.executeInstruction(data, null, null);
-	}
-
-	public static void executeAndCollectResult(Worker worker) {
-		Object data = worker.getData();
-		data = worker.getInstruction().executeInstruction(data, null, null);
-		// collectResult(data);
-		// synchronized(worker) {
-		result.add(data);
-		// }
-
-	}
-
+	/**
+	 * Collects elements from the <code>outputQueue</code> and adds it to the
+	 * <code>result</code> collection
+	 * 
+	 * @param outputQueue The <code>outputQueue</code> of the last {@link Worker} in
+	 *                    an array of Workers
+	 * @return A <code>Collection</code> of type specified by the user
+	 */
 	public static Collection fetchResult(Queue<Object> outputQueue) {
 		// null check here
 		for (Object o : outputQueue) {

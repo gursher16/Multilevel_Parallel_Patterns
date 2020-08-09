@@ -1,61 +1,63 @@
 package standrews.cs5099.mpp.core;
 
-import java.lang.reflect.Type;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.Stack;
-import java.util.TreeSet;
-import java.util.Vector;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import standrews.cs5099.mpp.instructions.Instruction;
 import standrews.cs5099.mpp.instructions.InstructionsBuilder;
-import standrews.cs5099.mpp.skeletons.FarmSkeleton;
-import standrews.cs5099.mpp.skeletons.PipelineSkeleton;
 import standrews.cs5099.mpp.skeletons.Skeleton;
-import standrews.cs5099.mpp.workers.PipelineWorker;
 import standrews.cs5099.mpp.workers.RootWorker;
 import standrews.cs5099.mpp.workers.Worker;
 import standrews.cs5099.mpp.workers.WorkerBuilder;
 
 /**
- * Class responsible for creating tasks and scheduling them for execution. Every
- * {@link Skeleton} composition has a <code>WorkScheduler</code> associated with
- * it
+ * Class responsible for creating workers and scheduling tasks for execution.
+ * Each {@link Skeleton} composition has a <code>WorkScheduler</code> associated
+ * with it
  * 
  * @author Gursher
  *
+ * @param <I> The type of input to the <code>Skeleton</code> composition
+ * @param <O> The type of output from the <code>Skeleton</code> composition
  */
 public class WorkScheduler<I, O> {
 
 	private TaskExecutor taskExecutor;
 	private Skeleton<I, O> targetSkeleton;
 
+	/**
+	 * Constructs a <code>WorkScheduler</code> with the following parameters
+	 * 
+	 * @param targetSkeleton The {@link Skeleton} composition specified by the user
+	 * @param taskExecutor   The core {@link TaskExecutor} that executes workers on
+	 *                       separate threads
+	 */
 	public WorkScheduler(Skeleton<I, O> targetSkeleton, TaskExecutor taskExecutor) {
 		this.targetSkeleton = targetSkeleton;
 		this.taskExecutor = taskExecutor;
 	}
 
-	/*************/
-	public Future<O> scheduleNewTaskForExecution(I inputParam) {
+	/**
+	 * Creates workers as per the {@link Skeleton} composition and forwards the
+	 * input from the <code>Skeleton</code> composition to the {@link RootWorker}
+	 * 
+	 * @param inputParam Tasks to be executed by the Workers
+	 * @return A {@link Future} object representing asynchronous computation of
+	 *         tasks
+	 */
+	public Future<O> createWorkersAndExecute(I inputParam) {
 
-		List<PipelineWorker> taskList = new ArrayList<>();
+		// Build instructions as per target skeleton composition
 		InstructionsBuilder instructionsBuilder = new InstructionsBuilder();
 		targetSkeleton.buildInstructions(instructionsBuilder);
 
+		// Build workers as per target skeleton composition and instructions
 		Worker[] workers = WorkerBuilder.createWorkers(targetSkeleton, taskExecutor,
 				instructionsBuilder.getInstructionsStack());
 
+		// Create root worker which schedules tasks to workers
 		RootWorker<O> skeletonWorker = new RootWorker<>(inputParam, taskExecutor, workers,
 				targetSkeleton.getOutputType());
 		this.taskExecutor.execute(skeletonWorker);
+
 		return skeletonWorker.getSkelFuture();
 	}
 

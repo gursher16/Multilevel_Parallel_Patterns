@@ -77,8 +77,8 @@ public class PipelineSkeleton<I, O> implements Skeleton<I, O> {
 	public Future<O> submitData(I inputParam) {
 
 		MPP mpp = MPP.getMppInstance();
-		WorkScheduler<I, O> taskScheduler = mpp.createTaskScheduler(this);
-		return taskScheduler.scheduleNewTaskForExecution(inputParam);
+		WorkScheduler<I, O> workScheduler = mpp.createWorkScheduler(this);
+		return workScheduler.createWorkersAndExecute(inputParam);
 	}
 
 	public boolean getaHasMultipleStages() {
