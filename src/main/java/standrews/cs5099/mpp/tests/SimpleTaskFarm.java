@@ -30,7 +30,7 @@ public class SimpleTaskFarm {
 		
 		Operation o1 = new FarmOperation1();
 		Skeleton<List<Integer>, List<Double>> computation = new SequentialOpSkeleton(o1, ArrayList.class);		
-		Skeleton<List<List<Integer>>, List<Double>> farm = new FarmSkeleton(computation, 4, ArrayList.class);
+		Skeleton<List<List<Integer>>, List<Double>> farm = new FarmSkeleton(computation, 2, ArrayList.class);
 		
 		
 				
@@ -56,7 +56,7 @@ public class SimpleTaskFarm {
 			result = outputFuture.get();
 			endTime = System.currentTimeMillis();
 			System.out.println("Parallel Execution time Taken: " + (endTime - startTime));
-			if (result.size() == sequentialInput.size()) {
+			if (result.size() == chunkedInput.size()) {
 				System.out.println("Same size!!");
 			} else {
 				System.out.println("Different Size!!");
@@ -95,7 +95,7 @@ public class SimpleTaskFarm {
 		Random random = new Random();
 		List<List<Integer>> chunkedList = new ArrayList<>();
 		List<Integer> subList;
-		int chunkSize = 100;
+		int chunkSize = 100000;
 		int chunks = size / chunkSize;
 		/*
 		 * array.add(738); array.add(591); array.add(129); array.add(577);

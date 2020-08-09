@@ -22,7 +22,7 @@ public class ThreeStagePipeline {
 		
 		MPP mpp = new MPP();
 		//int size = (int)Math.pow(2, 12);
-		int size = 10000;
+		int size = 10;
 		List<Integer> in = generate(size);
 		//List<Integer> out;
 		List<Integer> result = new ArrayList<>();
@@ -120,23 +120,23 @@ public class ThreeStagePipeline {
 		Random random = new Random();
 		ArrayList<Integer> array = new ArrayList<Integer>();
 		
-		/*
-		array.add(738);
-		array.add(591);
-		array.add(129);
-		array.add(577);
-		array.add(276);
-		array.add(913);
-		array.add(15);
-		array.add(170);
-		array.add(417);
-		array.add(26);
-		*/
 		
+		array.add(1);
+		array.add(2);
+		array.add(3);
+		array.add(4);
+		array.add(5);
+		array.add(6);
+		array.add(7);
+		array.add(8);
+		array.add(9);
+		array.add(10);
+		
+		/*
 		for(int i=0;i<size;i++){
 			//array.add(i, random.nextInt());
 			array.add(i,25);
-		}
+		}*/
 
 		return array;
 	}

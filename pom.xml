@@ -5,4 +5,12 @@
   <version>0.0.1-SNAPSHOT</version>
   <name>MPP_LIbrary</name>
   <description>		</description>
+  <dependencies>
+  	<dependency>
+  		<groupId>mpj</groupId>
+  		<artifactId>mpj</artifactId>
+  		<version>0.44</version>
+  		<scope>provided</scope>
+  	</dependency>
+  </dependencies>
 </project>
