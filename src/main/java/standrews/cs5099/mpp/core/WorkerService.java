@@ -39,7 +39,9 @@ public class WorkerService {
 	 *                   {@link Collection}
 	 */
 	public static void createInstanceOfResult(Class<?> outputType) {
-		if (outputType.equals(ArrayList.class)) {
+		if (null == outputType) {
+			result = null;
+		} else if (outputType.equals(ArrayList.class)) {
 			result = new ArrayList<Object>();
 		} else if (outputType.equals(LinkedList.class)) {
 			result = new LinkedList<Object>();
@@ -81,10 +83,17 @@ public class WorkerService {
 	 * @return A <code>Collection</code> of type specified by the user
 	 */
 	public static Collection fetchResult(Queue<Object> outputQueue) {
-		// null check here
-		for (Object o : outputQueue) {
-			result.add(o);
+		// only collect if result is not null
+		if(result!=null) {
+			for (Object o : outputQueue) {
+				result.add(o);
+			}
 		}
+		else {
+			// create empty List for result
+			result = new ArrayList<>();
+		}
+		
 		// resultFuture.setResult(result);
 		return result;
 	}
