@@ -5,6 +5,31 @@
   <version>0.0.1-SNAPSHOT</version>
   <name>MPP_LIbrary</name>
   <description>		</description>
+  <build>
+  <plugins>
+    <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-shade-plugin</artifactId>
+    <version>2.3</version>
+    <executions>
+       <!-- Run shade goal on package phase -->
+      <execution>
+        <phase>package</phase>
+        <goals>
+          <goal>shade</goal>
+        </goals>
+      </execution>
+    </executions>
+  </plugin>
+     <plugin>    
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+            <source>1.8</source>
+            <target>1.8</target>
+        </configuration>
+    </plugin>    
+  </plugins>   
+</build>  
   <dependencies>
   	<dependency>
   		<groupId>mpj</groupId>
@@ -13,4 +38,5 @@
   		<scope>provided</scope>
   	</dependency>
   </dependencies>
+  
 </project>
