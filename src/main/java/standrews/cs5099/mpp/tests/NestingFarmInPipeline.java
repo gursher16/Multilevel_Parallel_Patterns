@@ -31,7 +31,7 @@ public class NestingFarmInPipeline   {
 			
 		/* -- NESTING FARM --*/
 		Operation o1 = new PipelineOperation1();
-		Operation o2 = new NestedFarmOperation();		
+		Operation o2 = new FarmOperationNested();		
 		Skeleton firstStage = new SequentialOpSkeleton<Integer, Integer>(o1, Integer.class);		 
 		Skeleton secondStage = new SequentialOpSkeleton<Integer, Integer>(o2, Integer.class);
 		// Farm the second Stage

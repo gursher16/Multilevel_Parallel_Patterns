@@ -19,7 +19,7 @@ public class PipelineOperation1 implements Operation<Integer, Integer> {
 		
 		//fibonacci
 		fib(inputParam);		
-		return inputParam+1;
+		return inputParam;
 	}
 	
 	private static int fib(int n) {

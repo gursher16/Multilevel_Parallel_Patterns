@@ -2,7 +2,7 @@ package standrews.cs5099.mpp.tests;
 
 import standrews.cs5099.mpp.operations.Operation;
 
-public class NestedFarmOperation implements Operation<Integer, Integer> {
+public class FarmOperationNested implements Operation<Integer, Integer> {
 
 	@Override
 	public Integer execute(Integer inputParam) throws Exception {
