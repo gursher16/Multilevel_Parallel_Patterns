@@ -3,6 +3,7 @@ package standrews.cs5099.mpp.tests;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 
@@ -10,12 +11,13 @@ import standrews.cs5099.mpp.operations.Operation;
 
 public class ImageConvolutionStage3 implements Operation<double[][], File>{
 	
-	private int count;
-	public ImageConvolutionStage3() {
-		count=0;
-	}
+	
+	
 	@Override
 	public File execute(double[][] inputParam) throws Exception {
+		
+		Random random = new Random();
+		int count = random.nextInt() + random.nextInt(25);
 		//System.out.println("Creating output..");
 		 BufferedImage writeBackImage = new BufferedImage(inputParam[0].length, inputParam.length, BufferedImage.TYPE_INT_RGB);
 		    for (int i = 0; i < inputParam.length; i++) {
@@ -26,9 +28,9 @@ public class ImageConvolutionStage3 implements Operation<double[][], File>{
 		            writeBackImage.setRGB(j, i, color.getRGB());
 		        }
 		    }
-		    File outputFile = new File("E:\\StAndrews_artefacts\\Dissertation\\Sample_Images\\Output_Par\\edgesTmp_" + count + ".jpeg");
+		    File outputFile = new File("E:\\StAndrews_artefacts\\Dissertation\\Sample_Images\\Output_Par\\edgesTmpPar_" + count + ".jpeg");
 		    ImageIO.write(writeBackImage, "png", outputFile);
-		    count++;
+		    //System.out.println("File created!!");
 		    return outputFile;
 	}
 	
