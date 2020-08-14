@@ -19,10 +19,16 @@ public class SequentialOpSkeleton<I, O> implements Skeleton<I, O> {
 
 	private Operation<I, O> operation;
 	public  Class<O> outputType;
+	public boolean doSplitOutput;
 
 	public SequentialOpSkeleton(Operation<I, O> operation, Class<O> outputType) {
+		this(operation, outputType, false);
+	}
+	
+	public SequentialOpSkeleton(Operation<I,O> operation, Class<O> outputType, boolean doSplitOutput) {
 		this.operation = operation;
 		this.outputType = outputType;
+		this.doSplitOutput = doSplitOutput;
 	}
 
 	

@@ -1,11 +1,13 @@
 package standrews.cs5099.mpp.workers;
 
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import standrews.cs5099.mpp.core.TaskExecutor;
 import standrews.cs5099.mpp.core.WorkerService;
 import standrews.cs5099.mpp.instructions.Instruction;
+import standrews.cs5099.mpp.instructions.SeqOpInstruction;
 import standrews.cs5099.mpp.util.Constants;
 
 public class PipelineWorker<O> extends Worker {
@@ -95,7 +97,20 @@ public class PipelineWorker<O> extends Worker {
 					// System.out.println("STAGE 1 - computing..");
 
 					Object result = WorkerService.executeWorker(this);
-					this.outputQueue.offer(result);
+
+					if (null != result) {
+
+						if (((SeqOpInstruction) this.instruction).doSplitOutput) {
+							if (result instanceof Collection) {
+								for (Object o : (Collection) result) {
+									this.outputQueue.offer(o);
+								}
+							}
+						} else {
+							this.outputQueue.offer(result);
+						}
+					}
+
 					if (!isChildRunning) {
 						// invoke next worker
 						taskExecutor.execute(this.childWorker);
@@ -105,7 +120,7 @@ public class PipelineWorker<O> extends Worker {
 				// push END to output queue to signal end of execution
 				System.out.println("**************ENDING- STAGE 1 !!!!");
 				System.out.println("**************STAGE 1 waiting = " + waitCount);
-				this.outputQueue.add(Constants.END);			
+				this.outputQueue.add(Constants.END);
 			}
 		} else {
 			// System.out.println("Child Worker is being executed");
@@ -131,7 +146,20 @@ public class PipelineWorker<O> extends Worker {
 							// System.out.println("STAGE 2 - computing..");
 							this.data = this.inputQueue.remove();
 
-							this.outputQueue.offer(WorkerService.executeWorker(this));
+							Object result = WorkerService.executeWorker(this);
+
+							if (null != result) {
+								if (((SeqOpInstruction) this.instruction).doSplitOutput) {
+									if (result instanceof Collection) {
+										for (Object o : (Collection) result) {
+											this.outputQueue.offer(o);
+										}
+									}
+								} else {
+									this.outputQueue.offer(result);
+								}
+							}
+
 							if (!isChildRunning) {
 								taskExecutor.execute(this.childWorker);
 								isChildRunning = true;
@@ -144,8 +172,7 @@ public class PipelineWorker<O> extends Worker {
 					}
 
 				} else { /* CURRENT WORKER IS LAST WORKER IN PIPELINE */
-					// call special method which executes and stores result in a Collection
-					// WorkerService.executeAndCollectResult(this);
+
 					synchronized (this) {
 
 						while (this.inputQueue.peek() != Constants.END) {
@@ -162,17 +189,25 @@ public class PipelineWorker<O> extends Worker {
 							}
 							// System.out.println("STAGE 3 - computing..");
 							this.data = this.inputQueue.remove();
-							
-							if(null!=this.farmWorker) {// Compute and add result to output queue of FarmWorker if this pipeline is farmed
-								this.farmWorker.outputQueue.add(WorkerService.executeWorker(this));
-							}
-							else {// Compute and add result to output queue
-								this.outputQueue.add(WorkerService.executeWorker(this));
+
+							Object result = WorkerService.executeWorker(this);
+
+							if (null != this.farmWorker) {// Compute and add result to output queue of FarmWorker if
+															// this pipeline is farmed
+								if (null != result) { // Special cases when result of computation is null
+									this.farmWorker.outputQueue.add(result);
+								}
+
+							} else {// Compute and add result to output queue if this pipeline is not farmed
+
+								if (null != result) { // Special cases when result of computation is null
+									this.outputQueue.add(result);
+								}
 							}
 						}
 						System.out.println("**************ENDING PIPELINE !!!!!");
 						System.out.println("**************STAGE 3 waiting = " + waitCount);
-						
+
 						this.taskFuture.setResult(this.outputQueue);
 					}
 					// set future of

@@ -87,7 +87,7 @@ public class InstructionsBuilder {
 	 * @param seqOpSkeleton
 	 */
 	public <I, O> void traverse(SequentialOpSkeleton<I, O> seqOpSkeleton) {
-		instructionStack.push(new SeqOpInstruction(seqOpSkeleton.getSequentialOperation()));
+		instructionStack.push(new SeqOpInstruction(seqOpSkeleton.getSequentialOperation(), seqOpSkeleton.doSplitOutput));
 	}
 
 	/**
