@@ -11,7 +11,7 @@ import java.util.concurrent.Future;
 
 import javax.imageio.ImageIO;
 
-import standrews.cs5099.mpp.core.MPP;
+import standrews.cs5099.mpp.core.MPPSkelLib;
 import standrews.cs5099.mpp.operations.Operation;
 import standrews.cs5099.mpp.skeletons.PipelineSkeleton;
 import standrews.cs5099.mpp.skeletons.SequentialOpSkeleton;
@@ -27,7 +27,7 @@ public class ImageConvolutionPipeline {
 		List<BufferedImage> imageList = readImages();
 
 		/////////////////// PARALLEL VERSION////////////////////////
-		MPP mpp = new MPP();
+		MPPSkelLib mpp = new MPPSkelLib();
 		Operation o1 = new ImageConvolutionStage1();
 		Operation o2 = new ImageConvolutionStage2();
 		Operation o3 = new ImageConvolutionStage3();

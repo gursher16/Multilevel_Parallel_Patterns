@@ -2,7 +2,7 @@ package standrews.cs5099.mpp.skeletons;
 
 import java.util.concurrent.Future;
 
-import standrews.cs5099.mpp.core.MPP;
+import standrews.cs5099.mpp.core.MPPSkelLib;
 import standrews.cs5099.mpp.core.WorkScheduler;
 import standrews.cs5099.mpp.instructions.InstructionsBuilder;
 import standrews.cs5099.mpp.operations.Operation;
@@ -34,7 +34,7 @@ public class SequentialOpSkeleton<I, O> implements Skeleton<I, O> {
 	
 	public Future<O> submitData(I inputData) {
 		
-		MPP mpp = MPP.getMppInstance();
+		MPPSkelLib mpp = MPPSkelLib.getMppInstance();
 		WorkScheduler<I, O> workScheduler = mpp.createWorkScheduler(this);
 		return workScheduler.createWorkersAndExecute(inputData);
 	}

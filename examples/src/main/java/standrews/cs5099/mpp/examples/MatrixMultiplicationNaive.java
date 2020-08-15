@@ -6,7 +6,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import standrews.cs5099.mpp.core.MPP;
+import standrews.cs5099.mpp.core.MPPSkelLib;
 import standrews.cs5099.mpp.operations.Operation;
 import standrews.cs5099.mpp.skeletons.FarmSkeleton;
 import standrews.cs5099.mpp.skeletons.PipelineSkeleton;
@@ -46,7 +46,7 @@ public class MatrixMultiplicationNaive {
 		//displayMatrix(result);
 		//////////////////////PARALLEL//////////////////////////////
 		
-		MPP mpp= new MPP();
+		MPPSkelLib mpp= new MPPSkelLib();
 		List<double[][]> matrixList = new ArrayList<>();
 		matrixList.add(matrix1);
 		matrixList.add(matrix2);

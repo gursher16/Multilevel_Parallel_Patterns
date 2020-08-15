@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import mpi.MPI;
 import mpi.Status;
-import standrews.cs5099.mpp.core.MPP;
+import standrews.cs5099.mpp.core.MPPSkelLib;
 import standrews.cs5099.mpp.operations.Operation;
 import standrews.cs5099.mpp.skeletons.FarmSkeleton;
 import standrews.cs5099.mpp.skeletons.SequentialOpSkeleton;
@@ -61,7 +61,7 @@ public class MPJThreeStagePipeline {
 		////////////////////////// MPP ////////////////////////////////////
 
 		// Initialise MPP library
-		MPP mpp = new MPP();
+		MPPSkelLib mpp = new MPPSkelLib();
 		List<List<Double>> result = new ArrayList<>();
 		// Convert inputBuf to Collection
 		List<Integer> workerInput = Arrays.stream(inputBuf).boxed().collect(Collectors.toList());

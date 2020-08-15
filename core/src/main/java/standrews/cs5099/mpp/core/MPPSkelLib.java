@@ -6,14 +6,14 @@ import java.util.concurrent.TimeUnit;
 import standrews.cs5099.mpp.skeletons.Skeleton;
 
 /**
- * Main class for the <code>MPP</code> library - this class is responsible for
- * maintaining the core {@link TaskExecutor} (thread pool) and creating a
- * {@link WorkScheduler} (class that creates workers and schedules tasks for
- * execution) for a given {@link Skeleton}.
+ * Main class for the <code>MPP</code> Skeleton library - this class is
+ * responsible for maintaining the core {@link TaskExecutor} (thread pool) and
+ * creating a {@link WorkScheduler} (class that creates workers and schedules
+ * tasks for execution) for a given {@link Skeleton}.
  * 
  * @author Gursher
  */
-public class MPP {
+public class MPPSkelLib {
 
 	// Core thread pool used to run workers
 	private TaskExecutor taskExecutor;
@@ -28,19 +28,19 @@ public class MPP {
 	private PriorityBlockingQueue<Runnable> taskQueue;
 
 	// Default singleton instance
-	private static MPP mppSingletonInstance;
+	private static MPPSkelLib mppSingletonInstance;
 
-	public MPP() {
+	public MPPSkelLib() {
 		// Get number of logical cores
 		this(Runtime.getRuntime().availableProcessors());
 	}
-	
+
 	/**
 	 * Creates a singleton instance of <code>MPP</code>
 	 * 
 	 * @param numWorkers The maximum number of threads in the {@link TaskExecutor}
 	 */
-	public MPP(int numThreads) {
+	public MPPSkelLib(int numThreads) {
 		this.numThreads = numThreads;
 		taskQueue = new PriorityBlockingQueue<Runnable>();
 		// initialise the executor service
@@ -68,16 +68,28 @@ public class MPP {
 		}
 		return new WorkScheduler(skeleton, taskExecutor);
 	}
-	
-	
+
 	/**
 	 * Signals shutdown of executor service. Non-waiting threads will continue to
 	 * run for a minute before the service is forcefully shut down
 	 * <table>
-	 * <tr><td>Title:</td><td>Interface ExecutorService</td></tr>
-	 * <tr><td>Author:</td><td>Oracle and/or its affiliates</td></tr>
-	 * <tr><td>Version:</td><td>Java SE 7</td></tr>
-	 * <tr><td>URL:</td><td><a href="#{@link}">{@link https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html}</a></td></tr>
+	 * <tr>
+	 * <td>Title:</td>
+	 * <td>Interface ExecutorService</td>
+	 * </tr>
+	 * <tr>
+	 * <td>Author:</td>
+	 * <td>Oracle and/or its affiliates</td>
+	 * </tr>
+	 * <tr>
+	 * <td>Version:</td>
+	 * <td>Java SE 7</td>
+	 * </tr>
+	 * <tr>
+	 * <td>URL:</td>
+	 * <td><a href="#
+	 * {@link}">{@link https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html}</a></td>
+	 * </tr>
 	 * </table>
 	 */
 	public void shutDown() {
@@ -101,11 +113,11 @@ public class MPP {
 	/**
 	 * Return the singleton instance of MPP
 	 * 
-	 * @return The singleton instance of {@link MPP}
+	 * @return The singleton instance of {@link MPPSkelLib}
 	 */
-	public static synchronized MPP getMppInstance() {
+	public static synchronized MPPSkelLib getMppInstance() {
 		if (null == mppSingletonInstance || mppSingletonInstance.taskExecutor.isShutdown()) {
-			mppSingletonInstance = new MPP();
+			mppSingletonInstance = new MPPSkelLib();
 		}
 		return mppSingletonInstance;
 	}

@@ -8,7 +8,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import standrews.cs5099.mpp.core.MPP;
+import standrews.cs5099.mpp.core.MPPSkelLib;
 import standrews.cs5099.mpp.operations.Operation;
 import standrews.cs5099.mpp.skeletons.PipelineSkeleton;
 import standrews.cs5099.mpp.skeletons.SequentialOpSkeleton;
@@ -20,7 +20,7 @@ public class ExceptionHandlingPipeline{
 		
 		
 		
-		MPP mpp = new MPP();
+		MPPSkelLib mpp = new MPPSkelLib();
 		//int size = (int)Math.pow(2, 12);
 		int size = 10000;
 		List<Integer> in = generate(size);
