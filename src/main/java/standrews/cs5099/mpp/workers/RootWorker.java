@@ -47,6 +47,7 @@ public class RootWorker<O> extends Worker {
 		// this.instructionStack = instructionStack;
 		skelFuture = new TaskFuture(this.taskExecutor, this);
 		this.rootWorker = this;
+		isExceptionThrown = false; 
 	}
 
 	/**
@@ -108,12 +109,18 @@ public class RootWorker<O> extends Worker {
 			this.taskExecutor.execute(workers[0]);
 
 			try {
-				workers[workers.length - 1].getFuture().get();
+				Object result = workers[workers.length - 1].getFuture().get();
+				if(result instanceof Exception) {
+					isExceptionThrown = true;
+					skelFuture.setResult(result);
+				}
 			} catch (InterruptedException | ExecutionException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			skelFuture.setResult(WorkerService.fetchResult(workers[workers.length - 1].outputQueue));
+			if(!isExceptionThrown) {
+				skelFuture.setResult(WorkerService.fetchResult(workers[workers.length - 1].outputQueue));
+			}			
 		}
 		this.isFinished = true;
 	}

@@ -45,6 +45,7 @@ public class FarmWorker extends Worker {
 		this.priority = 10000;
 		this.isFinished = false;
 		this.noOfWorkers = noOfWorkers;
+		isExceptionThrown = false;
 	}
 
 	@Override
@@ -96,25 +97,37 @@ public class FarmWorker extends Worker {
 
 		// Send END signal to all workers to signal no more tasks
 		farmWorkers.stream().forEach((workers) -> workers[0].inputQueue.add("END"));
-
-		// Collect results and add each result to outputQueue of FarmWorker
-		futureList.stream().forEach((future) -> {
+		
+		// Block for results and check for Exception
+		for(TaskFuture future: futureList) {
 			try {
-				// Block for result
 				Object result = future.get();
-				// this.outputQueue.addAll((Collection<? extends Object>) result);
-				//this.outputQueue.add(Constants.END);
-			} catch (InterruptedException | ExecutionException e1) {
-
-				e1.printStackTrace();
+				if(result instanceof Exception) {					
+					isExceptionThrown = true;
+					this.outputQueue.clear();
+					this.outputQueue.add(result);
+					this.taskFuture.setResult(result);
+					// attempt to shut down executor service
+					taskExecutor.shutdown();
+					break;
+				}
+			} catch (InterruptedException | ExecutionException e) {
+				isExceptionThrown = true;
+				this.outputQueue.clear();
+				this.outputQueue.add(e);
+				this.taskFuture.setResult(e);
+				// attempt to shut down executor service
+				taskExecutor.shutdown();
 			}
-		});
+		}	
 
 		// Send END signal to child worker to signal no more tasks
 		if (null != this.getChildWorker()) {
 			this.outputQueue.add(Constants.END);
 		}
-		this.taskFuture.setResult(this.outputQueue);
+		if(!isExceptionThrown) {
+			this.taskFuture.setResult(this.outputQueue);
+		}		
 	}
 
 	@Override

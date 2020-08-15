@@ -3,6 +3,7 @@ package standrews.cs5099.mpp.instructions;
 import java.util.List;
 import java.util.Stack;
 
+import standrews.cs5099.mpp.exceptions.MPPException;
 import standrews.cs5099.mpp.operations.Operation;
 import standrews.cs5099.mpp.skeletons.SequentialOpSkeleton;
 
@@ -28,17 +29,13 @@ public class SeqOpInstruction implements Instruction{
 
 	@Override
 	public <I> Object executeInstruction(I inputParam, Stack<Instruction> instructions,
-			List<Stack<Instruction>> childInstructions) {
+			List<Stack<Instruction>> childInstructions) throws MPPException {
 
-		// return sequentialOp.execute(inputParam);
 		try {
 			return sequentialOp.execute(inputParam);
 		} catch (Exception e) {
-
-			// TODO Auto-generated catch block
-			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!! exception " + inputParam);
-			e.printStackTrace();
+			throw new MPPException(e);
 		}
-		return null;
+		
 	}
 }

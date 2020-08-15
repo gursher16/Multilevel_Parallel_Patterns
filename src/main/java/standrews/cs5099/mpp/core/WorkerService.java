@@ -67,8 +67,10 @@ public class WorkerService {
 	 * 
 	 * @param worker The <code>Worker</code> holding an <code>Instruction</code>
 	 * @return Returns result of executing an <code>Instruction</code>
+	 * @throws Exception Any exception during execution of the user
+	 *                   defined<code>Operation</code>
 	 */
-	public static Object executeWorker(Worker worker) {
+	public static Object executeWorker(Worker worker) throws Exception {
 		Object data = worker.getData();
 		data = worker.getInstruction().executeInstruction(data, null, null);
 		return data;

@@ -20,7 +20,7 @@ public abstract class Worker implements Runnable, Comparable<Worker>{
 	protected RootWorker rootWorker;
 	// used when a worker is farmed 
 	protected FarmWorker farmWorker;
-	
+	protected boolean isExceptionThrown;
 	Worker() {
 		// Initialize input.output queues for each worker
 		inputQueue = new LinkedBlockingQueue<>();

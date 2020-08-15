@@ -25,7 +25,8 @@ public class PipelineWorker<O> extends Worker {
 
 	/** variables for testing thread waiting **/
 
-	long waitCount;
+	long waitCount;	
+	
 
 	/****/
 
@@ -49,6 +50,7 @@ public class PipelineWorker<O> extends Worker {
 		outputQueue = new LinkedBlockingQueue<Object>();
 
 		waitCount = 0;
+		isExceptionThrown = false;
 	}
 
 	/**
@@ -82,8 +84,15 @@ public class PipelineWorker<O> extends Worker {
 		if (this.isRootPipelineWorker()) {
 			synchronized (this) {
 				boolean isChildRunning = false;
-
+				Object result = null;
 				while (this.inputQueue.peek() != Constants.END) {
+					
+					if (!isChildRunning) {
+						// invoke next worker
+						taskExecutor.execute(this.childWorker);
+						isChildRunning = true;
+					}
+					
 					if (null == this.inputQueue.peek()) {
 						/** Keep waiting till non null value in input queue **/
 						// System.out.println("STAGE 1 - waiting..");
@@ -95,9 +104,17 @@ public class PipelineWorker<O> extends Worker {
 					}
 					this.data = inputQueue.remove();
 					// System.out.println("STAGE 1 - computing..");
-
-					Object result = WorkerService.executeWorker(this);
-
+					try {
+						result = WorkerService.executeWorker(this);
+					}
+					catch(Exception ex) {
+						isExceptionThrown = true;
+						this.outputQueue.clear();
+						this.outputQueue.add(ex);
+						// attempt to shut down executor service
+						taskExecutor.shutdown();
+						break;
+					}
 					if (null != result) {
 
 						if (((SeqOpInstruction) this.instruction).doSplitOutput) {
@@ -110,12 +127,7 @@ public class PipelineWorker<O> extends Worker {
 							this.outputQueue.offer(result);
 						}
 					}
-
-					if (!isChildRunning) {
-						// invoke next worker
-						taskExecutor.execute(this.childWorker);
-						isChildRunning = true;
-					}
+					
 				}
 				// push END to output queue to signal end of execution
 				System.out.println("**************ENDING- STAGE 1 !!!!");
@@ -123,14 +135,18 @@ public class PipelineWorker<O> extends Worker {
 				this.outputQueue.add(Constants.END);
 			}
 		} else {
-			// System.out.println("Child Worker is being executed");
-			try {
+			// System.out.println("Child Worker is being executed");		
 				if (null != this.getChildWorker()) {
 					/** CURRENT WORKER IS INTERMEDIATE WORKER IN PIPELINE **/
 					synchronized (this) {
 						boolean isChildRunning = false;
-
+						Object result = null;
 						while (this.inputQueue.peek() != Constants.END) {
+							
+							if (!isChildRunning) {
+								taskExecutor.execute(this.childWorker);
+								isChildRunning = true;
+							}
 
 							if (null == this.inputQueue.peek()) {
 
@@ -140,14 +156,28 @@ public class PipelineWorker<O> extends Worker {
 								continue;
 							}
 							if (this.inputQueue.peek().equals(Constants.END)) {
-								/** If END in inputQueue then put END in outputQueue and terminate **/
+								/** If END in inputQueue then terminate **/
+								break;
+							}
+							if(this.inputQueue.peek() instanceof Exception) {
+								/** If Exception in inputQueue then put exception in outputQueue and terminate **/
+								isExceptionThrown = true;
+								this.outputQueue.add(this.inputQueue.remove());								
 								break;
 							}
 							// System.out.println("STAGE 2 - computing..");
 							this.data = this.inputQueue.remove();
-
-							Object result = WorkerService.executeWorker(this);
-
+							try {
+								result = WorkerService.executeWorker(this);
+							}
+							catch(Exception ex) {
+								isExceptionThrown = true;
+								this.outputQueue.clear();
+								this.outputQueue.add(ex);						
+								// attempt to shut down executor service
+								taskExecutor.shutdown();
+								break;
+							}
 							if (null != result) {
 								if (((SeqOpInstruction) this.instruction).doSplitOutput) {
 									if (result instanceof Collection) {
@@ -159,11 +189,7 @@ public class PipelineWorker<O> extends Worker {
 									this.outputQueue.offer(result);
 								}
 							}
-
-							if (!isChildRunning) {
-								taskExecutor.execute(this.childWorker);
-								isChildRunning = true;
-							}
+							
 						}
 						System.out.println("***********ENDING - STAGE 2 !!!!");
 						System.out.println("***********STAGE 2 waiting = " + waitCount);
@@ -174,7 +200,7 @@ public class PipelineWorker<O> extends Worker {
 				} else { /* CURRENT WORKER IS LAST WORKER IN PIPELINE */
 
 					synchronized (this) {
-
+						Object result = null;
 						while (this.inputQueue.peek() != Constants.END) {
 
 							if (null == this.inputQueue.peek()) {
@@ -187,11 +213,25 @@ public class PipelineWorker<O> extends Worker {
 								/** If END in inputQueue then put END in outputQueue and terminate **/
 								break;
 							}
+							if(this.inputQueue.peek() instanceof Exception) {
+								isExceptionThrown = true;
+								this.taskFuture.setResult(this.inputQueue.remove());
+								break;
+							}
 							// System.out.println("STAGE 3 - computing..");
 							this.data = this.inputQueue.remove();
-
-							Object result = WorkerService.executeWorker(this);
-
+							
+							try {
+								result = WorkerService.executeWorker(this);
+							}
+							catch(Exception ex) {
+								isExceptionThrown = true;
+								this.outputQueue.clear();
+								this.taskFuture.setResult(ex);
+								// attempt to shut down executor service
+								taskExecutor.shutdown();
+								break;
+							}
 							if (null != this.farmWorker) {// Compute and add result to output queue of FarmWorker if
 															// this pipeline is farmed
 								if (null != result) { // Special cases when result of computation is null
@@ -205,19 +245,16 @@ public class PipelineWorker<O> extends Worker {
 								}
 							}
 						}
-						System.out.println("**************ENDING PIPELINE !!!!!");
-						System.out.println("**************STAGE 3 waiting = " + waitCount);
-
+					System.out.println("**************ENDING PIPELINE !!!!!");
+					System.out.println("**************STAGE 3 waiting = " + waitCount);
+					
+					if (!isExceptionThrown) {
 						this.taskFuture.setResult(this.outputQueue);
 					}
-					// set future of
 				}
 
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-			// data = this.getParentWorker().getFuture()
+
 		}
 
 		this.isFinished = true;

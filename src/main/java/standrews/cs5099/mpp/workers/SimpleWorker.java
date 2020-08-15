@@ -38,6 +38,7 @@ public class SimpleWorker extends Worker {
 		this.priority = 10000;
 		this.isFinished = false;
 		this.farmWorker = farmWorker;
+		isExceptionThrown = false;
 
 	}
 
@@ -45,6 +46,7 @@ public class SimpleWorker extends Worker {
 	public void run() {
 
 		while (this.inputQueue.peek() != Constants.END) {
+			Object result = null;
 			if (null == this.inputQueue.peek()) {
 				/** Keep waiting till non null value in input queue **/
 				// System.out.println("Worker - waiting..");
@@ -60,15 +62,27 @@ public class SimpleWorker extends Worker {
 			// System.out.println("Data :" + data);
 			// System.out.println("Worker - computing..");
 			// execute instruction and store result in future
-			if (null != this.farmWorker) {
-				this.farmWorker.outputQueue.offer(WorkerService.executeWorker(this));
+			try {
+				result = WorkerService.executeWorker(this);
+			}
+			catch(Exception ex) {
+				isExceptionThrown = true;
+				this.outputQueue.clear();
+				this.outputQueue.add(ex);
+				this.taskFuture.setResult(ex);
+				break;
+			}
+			if (null != this.farmWorker) {				
+				this.farmWorker.outputQueue.offer(result);
 			} else {
-				this.outputQueue.offer(WorkerService.executeWorker(this));
+				this.outputQueue.offer(result);
 			}
 
 		}
-
-		this.taskFuture.setResult(this.outputQueue);
+		if(!isExceptionThrown) {
+			this.taskFuture.setResult(this.outputQueue);
+		}
+		
 		// System.out.println("Shutting down worker..");
 
 	}

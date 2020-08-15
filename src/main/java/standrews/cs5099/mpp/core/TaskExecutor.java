@@ -37,6 +37,10 @@ public class TaskExecutor extends ThreadPoolExecutor {
 	@Override
 	protected void afterExecute(Runnable r, Throwable t) {
 		super.afterExecute(r, t);
+		if(t!=null) {
+			System.out.println("Terminating thread pool due to exception..");
+			this.shutdownNow();
+		}
 	}
 
 }

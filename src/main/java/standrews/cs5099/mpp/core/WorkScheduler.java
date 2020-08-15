@@ -44,21 +44,26 @@ public class WorkScheduler<I, O> {
 	 *         tasks
 	 */
 	public Future<O> createWorkersAndExecute(I inputParam) {
+		try {
+			// Build instructions as per target skeleton composition
+			InstructionsBuilder instructionsBuilder = new InstructionsBuilder();
+			targetSkeleton.buildInstructions(instructionsBuilder);
 
-		// Build instructions as per target skeleton composition
-		InstructionsBuilder instructionsBuilder = new InstructionsBuilder();
-		targetSkeleton.buildInstructions(instructionsBuilder);
+			// Build workers as per target skeleton composition and instructions
+			Worker[] workers = WorkerBuilder.createWorkers(targetSkeleton, taskExecutor,
+					instructionsBuilder.getInstructionsStack());
 
-		// Build workers as per target skeleton composition and instructions
-		Worker[] workers = WorkerBuilder.createWorkers(targetSkeleton, taskExecutor,
-				instructionsBuilder.getInstructionsStack());
+			// Create root worker which schedules tasks to workers
+			RootWorker<O> skeletonWorker = new RootWorker<>(inputParam, taskExecutor, workers,
+					targetSkeleton.getOutputType());
+			this.taskExecutor.execute(skeletonWorker);
 
-		// Create root worker which schedules tasks to workers
-		RootWorker<O> skeletonWorker = new RootWorker<>(inputParam, taskExecutor, workers,
-				targetSkeleton.getOutputType());
-		this.taskExecutor.execute(skeletonWorker);
-
-		return skeletonWorker.getSkelFuture();
+			return skeletonWorker.getSkelFuture();
+			
+		} catch (Exception e) {// Not necessary, only for safety's sake
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 }

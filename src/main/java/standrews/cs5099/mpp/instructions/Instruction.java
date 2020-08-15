@@ -5,5 +5,5 @@ import java.util.Stack;
 
 public interface Instruction {
 
-	public <I> Object executeInstruction(I inputParam, Stack<Instruction> instructions, List<Stack<Instruction>> childInstructions);
+	public <I> Object executeInstruction(I inputParam, Stack<Instruction> instructions, List<Stack<Instruction>> childInstructions) throws Exception;
 }
