@@ -29,7 +29,7 @@ public class ImageConvolutionStage3 implements Operation<double[][], File>{
 		        }
 		    }
 		    File outputFile = new File("E:\\StAndrews_artefacts\\Dissertation\\Sample_Images\\Output_Par\\edgesTmpPar_" + count + ".jpeg");
-		    ImageIO.write(writeBackImage, "png", outputFile);
+		    ImageIO.write(writeBackImage, "jpeg", outputFile);
 		    //System.out.println("File created!!");
 		    return outputFile;
 	}

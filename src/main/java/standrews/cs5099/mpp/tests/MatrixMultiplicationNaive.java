@@ -16,7 +16,7 @@ import standrews.cs5099.mpp.skeletons.Skeleton;
 public class MatrixMultiplicationNaive {
 
 	public static final int ROW_SIZE = 5;
-	public static final int COL_SIZE = 5;
+	public static final int COL_SIZE = 2000;
 
 	public static void main(String args[]) {
 
@@ -43,7 +43,7 @@ public class MatrixMultiplicationNaive {
 		endTime = System.currentTimeMillis();
 		System.out.println("Sequential Time: " + (endTime - startTime));
 		//System.out.println("Result: ");
-		displayMatrix(result);
+		//displayMatrix(result);
 		//////////////////////PARALLEL//////////////////////////////
 		
 		MPP mpp= new MPP();
@@ -52,7 +52,8 @@ public class MatrixMultiplicationNaive {
 		matrixList.add(matrix2);
 		List<List<double[][]>> inputList = new ArrayList<>();
 		inputList.add(matrixList);
-		List<double[][]> parResult;
+		Object parResult;
+		List<double[][]> parResultMatrix;
 		
 		Operation o1 = new MatrixMulStage1();
 		Operation o2 = new MatrixMulStage2();
@@ -69,7 +70,13 @@ public class MatrixMultiplicationNaive {
 		Future<List> outputFuture = pipe.submitData(inputList);
 		
 		try {
-			parResult = (List<double[][]>) outputFuture.get();
+			parResult = outputFuture.get();
+			if(parResult instanceof Exception) {
+				((Exception)parResult).printStackTrace();
+			}
+			else {
+				parResultMatrix = (List)parResult;
+			}
 			endTime = System.currentTimeMillis();
 			System.out.println("Parallel Time: " + (endTime - startTime));
 			//displayMatrix(parResult.get(0));
