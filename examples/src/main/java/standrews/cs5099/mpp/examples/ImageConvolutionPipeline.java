@@ -50,7 +50,8 @@ public class ImageConvolutionPipeline {
 			endTime = System.currentTimeMillis();
 			System.out.println("Parallel Execution time Taken: " + (endTime - startTime));
 
-		} catch (InterruptedException | ExecutionException e) {
+		} catch (Exception e) {
+			System.out.println("EXCEPTION!!!");
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
@@ -65,7 +66,7 @@ public class ImageConvolutionPipeline {
 		List<BufferedImage> imageCollection = null;
 		try {
 			imageCollection = new ArrayList<>();
-			File path = new File("E:\\StAndrews_artefacts\\Dissertation\\Sample_Images\\1920x1080");
+			File path = new File("E:\\StAndrews_artefacts\\Dissertation\\Sample_Images\\1920x1080_Dist");
 
 			File[] files = path.listFiles();
 			for (int i = 0; i < files.length; i++) {

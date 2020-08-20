@@ -9,12 +9,12 @@ import javax.imageio.ImageIO;
 
 import standrews.cs5099.mpp.operations.Operation;
 
-public class ImageConvolutionStage3 implements Operation<double[][], File>{
+public class ImageConvolutionStage3 implements Operation<double[][], Object>{
 	
 	
 	
 	@Override
-	public File execute(double[][] inputParam) throws Exception {
+	public Object execute(double[][] inputParam) throws Exception {
 		
 		Random random = new Random();
 		int count = random.nextInt() + random.nextInt(25);
