@@ -96,10 +96,10 @@ public class MPPSkelLib {
 		taskExecutor.shutdown();
 		try {
 			// Wait a while for existing tasks to terminate
-			if (!taskExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
+			if (!taskExecutor.awaitTermination(30, TimeUnit.SECONDS)) {
 				taskExecutor.shutdownNow(); // Cancel currently executing tasks
 				// Wait a while for tasks to respond to being cancelled
-				if (!taskExecutor.awaitTermination(60, TimeUnit.SECONDS))
+				if (!taskExecutor.awaitTermination(30, TimeUnit.SECONDS))
 					System.err.println("Pool did not terminate");
 			}
 		} catch (InterruptedException ie) {

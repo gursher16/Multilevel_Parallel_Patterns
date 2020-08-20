@@ -117,6 +117,8 @@ public class RootWorker<O> extends Worker {
 			} catch (InterruptedException | ExecutionException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				isExceptionThrown = true;
+				skelFuture.setResult(e);
 			}
 			if(!isExceptionThrown) {
 				skelFuture.setResult(WorkerService.fetchResult(workers[workers.length - 1].outputQueue));
