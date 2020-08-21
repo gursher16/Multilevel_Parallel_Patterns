@@ -9,6 +9,8 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import uk.ac.standrews.cs.mpp.core.MPPSkelLib;
+
 public class ImageConvolutionSequential {
 
 	private static final double[][] FILTER_SCHARR_H = { { 3, 10, 3 }, { 0, 0, 0 }, { -3, -10, -3 } };
@@ -16,11 +18,36 @@ public class ImageConvolutionSequential {
 	static int count;
 
 	public static void main(String args[]) {
+		System.out.println("Started: " + ImageConvolutionPipeline.class.getSimpleName());
+
+		int inputMode = 0;
+		String imageFolderName = null;
+		if (args.length == 1) {
+			inputMode = Integer.parseInt(args[0]);
+			switch (inputMode) {
+			case 1:
+				imageFolderName = "800x600";
+				break;
+			case 2:
+				imageFolderName = "1280x720";
+				break;
+			case 3:
+				imageFolderName = "test";
+				break;
+			default:
+				System.err.println("Invalid inputMode -- should be 1 for 800x600 or 2 for 1280x720");
+				System.exit(-3);
+			}
+		} else {
+			System.err.println("Invalid number of arguments!");
+			System.exit(-1);
+		}
+
 		long startTime = 0;
 		long endTime = 0;
 		List<File> result = new ArrayList<>();
 		// Read Images
-		List<BufferedImage> imageList = readImages();
+		List<BufferedImage> imageList = readImages(imageFolderName);
 		/////////////////// SEQUENTIAL VERSION///////////////////////
 
 		try {
@@ -37,16 +64,16 @@ public class ImageConvolutionSequential {
 		System.out.println("SEQUENTIAL TIME TAKEN: " + (endTime - startTime));
 	}
 
-	private static List<BufferedImage> readImages() {
+	private static List<BufferedImage> readImages(String imageFolderName) {
 		List<BufferedImage> imageCollection = null;
 		try {
 			imageCollection = new ArrayList<>();
-			File path = new File("E:\\StAndrews_artefacts\\Dissertation\\Sample_Images\\1920x1080_Dist");
+			File path = new File("examples//src//main//resources//inputImages//" + imageFolderName);
 
 			File[] files = path.listFiles();
 			for (int i = 0; i < files.length; i++) {
 				if (files[i].isFile()) { // this line weeds out other directories/folders
-					//System.out.println("Reading Image..");
+					// System.out.println("Reading Image..");
 					imageCollection.add(loadImage(files[i]));
 					// imageCollection.add(loadImage(files[i]));
 				}
@@ -64,7 +91,7 @@ public class ImageConvolutionSequential {
 	}
 
 	private static double[][][] transformImageToArray(BufferedImage bufferedImage) {
-		//System.out.println("Transforming to array..");
+		// System.out.println("Transforming to array..");
 		int width = bufferedImage.getWidth();
 		int height = bufferedImage.getHeight();
 
@@ -81,7 +108,7 @@ public class ImageConvolutionSequential {
 	}
 
 	private static double[][] convolveImage(double[][][] inputParam) throws Exception {
-		//System.out.println("Convolving Image..");
+		// System.out.println("Convolving Image..");
 		double[][] redConv = convolutionType2(inputParam[0], inputParam[0].length, inputParam[0][0].length,
 				FILTER_SCHARR_H, 3, 3, 1);
 		double[][] greenConv = convolutionType2(inputParam[1], inputParam[1].length, inputParam[1][0].length,
@@ -161,7 +188,7 @@ public class ImageConvolutionSequential {
 	}
 
 	private static File createImage(double[][] inputParam) throws Exception {
-		//System.out.println("Creating output..");
+		// System.out.println("Creating output..");
 		BufferedImage writeBackImage = new BufferedImage(inputParam[0].length, inputParam.length,
 				BufferedImage.TYPE_INT_RGB);
 		for (int i = 0; i < inputParam.length; i++) {
@@ -171,8 +198,7 @@ public class ImageConvolutionSequential {
 				writeBackImage.setRGB(j, i, color.getRGB());
 			}
 		}
-		File outputFile = new File(
-				"E:\\StAndrews_artefacts\\Dissertation\\Sample_Images\\Output\\edgesTmp_" + count + ".jpeg");
+		File outputFile = new File("examples//src//main//resources//outputImages//" + count + ".jpeg");
 		ImageIO.write(writeBackImage, "jpeg", outputFile);
 		count++;
 		return outputFile;

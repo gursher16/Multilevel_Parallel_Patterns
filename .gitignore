@@ -66,3 +66,6 @@ local.properties
 ### Eclipse Patch ###
 # Spring Boot Tooling
 .sts4-cache/
+
+### Multilevel Parallel Patterns Project Specific ###
+examples/src/main/resources

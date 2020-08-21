@@ -21,7 +21,8 @@ import uk.ac.standrews.cs.mpp.skeletons.Skeleton;
 public class MPPDistSimpleTaskFarm {
 
 	public static void main(String args[]) {
-
+		
+		System.out.println("Started: " + Class.class.getName());
 		////////////////////////// MPP INIT////////////////////////////////
 
 		//MPI.Init(args);

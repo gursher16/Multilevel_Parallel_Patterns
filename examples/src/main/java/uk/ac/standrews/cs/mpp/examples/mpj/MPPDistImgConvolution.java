@@ -24,6 +24,7 @@ import uk.ac.standrews.cs.mpp.skeletons.Skeleton;
 public class MPPDistImgConvolution {
 
 	public static void main(String args[]) {
+		System.out.println("Started: " + Class.class.getName());
 		////////////////////////// MPP INIT////////////////////////////////
 
 		MppDistLib mppDist = new MppDistLib(args);

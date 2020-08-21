@@ -31,6 +31,7 @@ public class TaskExecutor extends ThreadPoolExecutor {
 	TaskExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit,
 			BlockingQueue<Runnable> workQueue) {
 		super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
+		System.out.println("Executor service initialized with: " + corePoolSize + " threads");
 
 	}
 

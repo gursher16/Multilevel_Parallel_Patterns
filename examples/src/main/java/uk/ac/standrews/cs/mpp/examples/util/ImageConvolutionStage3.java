@@ -28,7 +28,7 @@ public class ImageConvolutionStage3 implements Operation<double[][], Object>{
 		            writeBackImage.setRGB(j, i, color.getRGB());
 		        }
 		    }
-		    File outputFile = new File("E:\\StAndrews_artefacts\\Dissertation\\Sample_Images\\Output_Par\\edgesTmpPar_" + count + ".jpeg");
+		    File outputFile = new File("examples//src//main//resources//outputImages//" + count + ".jpeg");
 		    ImageIO.write(writeBackImage, "jpeg", outputFile);
 		    //System.out.println("File created!!");
 		    return outputFile;

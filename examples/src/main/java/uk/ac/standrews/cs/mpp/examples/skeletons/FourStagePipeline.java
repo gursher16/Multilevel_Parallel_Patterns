@@ -20,7 +20,7 @@ public class FourStagePipeline {
 	public static void main(String args[]) {
 		
 		
-		
+		System.out.println("Started: " + Class.class.getName());
 		MPPSkelLib mpp = new MPPSkelLib();
 		//int size = (int)Math.pow(2, 12);
 		int size = 10000;
