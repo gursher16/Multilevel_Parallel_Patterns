@@ -18,11 +18,12 @@ import uk.ac.standrews.cs.mpp.examples.util.ImageConvolutionStage1Dist;
 import uk.ac.standrews.cs.mpp.examples.util.ImageConvolutionStage2;
 import uk.ac.standrews.cs.mpp.examples.util.ImageConvolutionStage3;
 import uk.ac.standrews.cs.mpp.operations.Operation;
+import uk.ac.standrews.cs.mpp.skeletons.FarmSkeleton;
 import uk.ac.standrews.cs.mpp.skeletons.PipelineSkeleton;
 import uk.ac.standrews.cs.mpp.skeletons.SequentialOpSkeleton;
 import uk.ac.standrews.cs.mpp.skeletons.Skeleton;
 
-public class MPPDistImgConvolution {
+public class MPPDistImgConvolutionPipeInFarm {
 
 	public static void main(String args[]) {
 		System.out.println("Started: " + ImageConvolutionPipeline.class.getSimpleName());
@@ -32,10 +33,12 @@ public class MPPDistImgConvolution {
 		MppDistLib mppDist = null;
 		int inputMode = 0;
 		int numCores = 0;
+		int farmWorkersSize = 0;
 		String imageFolderName = null;
-		if (args.length == 5) {
+		if (args.length == 6) {
 			numCores = Integer.parseInt(args[3]);
 			inputMode = Integer.parseInt(args[4]);
+			farmWorkersSize = Integer.parseInt(args[5]);
 			if (numCores <= Runtime.getRuntime().availableProcessors() && numCores >= 2) {
 				mpp = new MPPSkelLib(numCores);
 				mppDist = new MppDistLib(args);
@@ -56,6 +59,11 @@ public class MPPDistImgConvolution {
 			default:
 				System.err.println("Invalid inputMode -- should be 1 for 800x600 or 2 for 1280x720");
 				System.exit(-3);
+			}
+			if (farmWorkersSize > numCores || farmWorkersSize < 2) {
+				System.err
+						.println("Invalid farm worker size -- should be less than number of cores and greater than 2!");
+				System.exit(-4);
 			}
 		} else {
 			System.err.println("Invalid number of arguments!");
@@ -113,7 +121,7 @@ public class MPPDistImgConvolution {
 		}
 
 		// Skeleton library computation
-		Object[] resultArr = mppRun(deserialisedInputBuf);
+		Object[] resultArr = mppRun(deserialisedInputBuf, farmWorkersSize);
 		if(resultArr == null) {
 			try {
 				System.out.println("Received null from skeleton computation");
@@ -143,7 +151,7 @@ public class MPPDistImgConvolution {
 
 	}
 
-	public static Object[] mppRun(List<Object> inputBuf) {
+	public static Object[] mppRun(List<Object> inputBuf, int farmWorkerSize) {
 		long startTime = 0;
 		long endTime = 0;
 		List<Object> result = null;
@@ -156,9 +164,9 @@ public class MPPDistImgConvolution {
 
 		Skeleton stage1 = new SequentialOpSkeleton<Object, double[][][]>(o1, double[][][].class);
 		Skeleton stage2 = new SequentialOpSkeleton<double[][][], double[][]>(o2, double[][].class);
-
+		Skeleton farm = new FarmSkeleton<double[][][], double[][]>(stage2, farmWorkerSize, double[][].class);
 		Skeleton stage3 = new SequentialOpSkeleton<double[][], Object>(o3, Object.class); 
-		Skeleton[] stages = { stage1, stage2, stage3 };
+		Skeleton[] stages = { stage1, farm, stage3 };
 		Skeleton pipeLine = new PipelineSkeleton<>(stages, ArrayList.class);
 		startTime = System.currentTimeMillis();
 		Future<List<Object>> outputFuture = pipeLine.submitData(inputBuf);

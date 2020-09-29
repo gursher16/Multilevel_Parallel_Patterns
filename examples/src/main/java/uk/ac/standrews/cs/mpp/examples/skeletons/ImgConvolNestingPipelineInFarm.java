@@ -124,7 +124,7 @@ public class ImgConvolNestingPipelineInFarm {
 		List<BufferedImage> imageCollection = null;
 		try {
 			imageCollection = new ArrayList<>();
-			File path = new File("examples//src//main//resources//inputImages//" + imageFolderName);
+			File path = new File("//home//gg63//mpp_lib//mpp//examples//src//main//resources//inputImages//" + imageFolderName);
 
 			File[] files = path.listFiles();
 			for (int i = 0; i < files.length; i++) {

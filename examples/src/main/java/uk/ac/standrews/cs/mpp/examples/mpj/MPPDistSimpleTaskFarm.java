@@ -25,15 +25,46 @@ public class MPPDistSimpleTaskFarm {
 		System.out.println("Started: " + Class.class.getName());
 		////////////////////////// MPP INIT////////////////////////////////
 
-		//MPI.Init(args);
-		MppDistLib mppDist = new MppDistLib(args);
+		MPPSkelLib mpp = null;
+		MppDistLib mppDist = null;
+		int numCores = 0;
+		int inputSize = 0;
+		int chunkSize = 0;
+		int farmWorkersSize = 0;
+		if (args.length == 7) {
+			numCores = Integer.parseInt(args[3]);
+			inputSize = Integer.parseInt(args[4]);
+			chunkSize = Integer.parseInt(args[5]);
+			farmWorkersSize = Integer.parseInt(args[6]);
+			System.out.println("inputSize: " + inputSize);
+			System.out.println("chunkSize: " + chunkSize);
+
+			if (numCores <= Runtime.getRuntime().availableProcessors() && numCores >= 2) {
+				mpp = new MPPSkelLib(numCores);
+				mppDist = new MppDistLib(args);
+			} else {
+				System.err.println("Invalid number of processors!");
+				System.exit(-2);
+			}
+			if (chunkSize > inputSize || inputSize % chunkSize != 0) {
+				System.err.println(
+						"Invalid chunk size -- inputSize should greater than 0 and be evenly divisible by chunkSize!");
+				System.exit(-3);
+			}
+			if (farmWorkersSize > numCores || farmWorkersSize < 2) {
+				System.err
+						.println("Invalid farm worker size -- should be less than number of cores and greater than 2!");
+				System.exit(-4);
+			}
+		} else {
+			System.err.println("Invalid number of arguments!");
+			System.exit(-1);
+		}
+		
 		double startTime = 0;
-		//int rank = MPI.COMM_WORLD.Rank();
-		//int size = MPI.COMM_WORLD.Size();
 		int rank = mppDist.getRankOfCurrentProcess();
 		int size = mppDist.getNumberOfProcesses();
-		int workerInputSize = 10000000;
-		// 20 million values to be split amongst both workers
+		int workerInputSize = inputSize;		
 		int[] globalInput = new int[workerInputSize * size];
 		// Master worker creates the array
 		if (rank == 0) {
@@ -55,7 +86,7 @@ public class MPPDistSimpleTaskFarm {
 		//MPI.COMM_WORLD.Scatter(globalInput, 0, workerInputSize, MPI.INT, inputBuf, 0, workerInputSize, MPI.INT, 0);
 		
 		// MPP library to compute
-		double[] result = mppRun(inputBuf, rank);
+		double[] result = mppRun(inputBuf, rank, chunkSize);
 		double[] finalResult = new double[workerInputSize * size];
 		
 		// Gather results in finalResult
@@ -77,43 +108,36 @@ public class MPPDistSimpleTaskFarm {
 
 	}
 
-	public static double[] mppRun(int[] inputBuf, int rank) {
+	public static double[] mppRun(int[] inputBuf, int rank, int chunkSize) {
 		////////////////////////// MPP ////////////////////////////////////
 
 		// Initialise MPP library
 		MPPSkelLib mpp = new MPPSkelLib();
-		List<List<Double>> result = new ArrayList<>();
+		Object result = null;
+		List<Double> resultList = new ArrayList<>();
 		// Convert inputBuf to Collection
 		List<Integer> workerInput = Arrays.stream(inputBuf).boxed().collect(Collectors.toList());
 		System.out.println("Process: " + rank + " input size: " + workerInput.size());
-		List<List<Integer>> chunkedInput = generateChunkedInput(workerInput);
-		//System.out.println("Chunked Input Size = " + chunkedInput.size());
+		List<List<Integer>> chunkedInput = generateChunkedInput(workerInput, chunkSize);
+		
 		long startTime;
 		long endTime;
 
 		Operation o1 = new FarmOperation1();
 		Skeleton<List<Integer>, List<Double>> computation = new SequentialOpSkeleton(o1, ArrayList.class);
-		Skeleton<List<List<Integer>>, List<List<Double>>> farm = new FarmSkeleton(computation, 2, ArrayList.class);
+		Skeleton<List<List<Integer>>, List<Double>> farm = new FarmSkeleton(computation, 2, ArrayList.class);
 
-		//////////////////////////SEQUENTIAL OPERATION ///////////////////
-		/*
-		 * startTime = System.currentTimeMillis(); for (int i : sequentialInput) {
-		 * double o = 1 / i; o = o * 0.5; o = o / 1.23; //o = i * 5; result.add(o); }
-		 * endTime = System.currentTimeMillis();
-		 * System.out.println("Sequential Execution time Taken: " + (endTime -
-		 * startTime));
-		 */
-		///////////////////////////////////////////////////////////////////
-
-		//////////////////////////FARMED OPERATION ///////////////////////
 		startTime = System.currentTimeMillis();
-		Future<List<List<Double>>> outputFuture = farm.submitData(chunkedInput);
+		Future<List<Double>> outputFuture = farm.submitData(chunkedInput);
 		try {
 			result = outputFuture.get();
-			// System.out.println("Result size: " + result.size());
-			/*endTime = System.currentTimeMillis();
-			System.out.println("Thread Execution time Taken: " + (endTime - startTime));*/
-			
+			if(result instanceof Exception)
+			{
+				((Exception) result).printStackTrace();
+			}
+			else {
+				resultList = (List) result;
+			}
 		} catch (InterruptedException | ExecutionException e) {
 			//TODO Auto-generated catch block
 			e.printStackTrace();
@@ -122,11 +146,8 @@ public class MPPDistSimpleTaskFarm {
 		}
 
 		double[] resultD = new double[inputBuf.length];
-		List<Double> finalR = new ArrayList<Double>();
-		for (List<Double> list : result) {
-			finalR.addAll(list);
-		}
-		resultD = finalR.stream().mapToDouble(d -> d).toArray();// very expensive computation
+		
+		//resultD = resultList.stream().mapToDouble(d -> d).toArray();// very expensive computation
 		endTime = System.currentTimeMillis();
 		System.out.println("Thread Execution time Taken: " + (endTime - startTime));
 		System.out.println("FINISHED");
@@ -138,17 +159,16 @@ public class MPPDistSimpleTaskFarm {
 		Random random = new Random();
 		int[] input = new int[size];
 		for (int i = 0; i < size; i++) {
-			input[i] = random.nextInt();
+			input[i] = 26;
 		}
 		return input;
 	}
 
-	public static List<List<Integer>> generateChunkedInput(List<Integer> input) {
+	public static List<List<Integer>> generateChunkedInput(List<Integer> input, int chunkSize) {
 		List<List<Integer>> chunkedList = new ArrayList<>();
 		List<Integer> sublist;
-		int chunkSize = 100000;
 		int chunks = input.size() / chunkSize;
-		//System.out.println("Chunks: " + chunks);
+		System.out.println("number of chunks: " + chunks);
 		int startIndex = 0;
 		int chunkCount = 0;
 		while (chunkCount != chunks) {

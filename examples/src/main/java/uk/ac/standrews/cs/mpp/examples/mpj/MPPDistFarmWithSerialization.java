@@ -24,12 +24,47 @@ public class MPPDistFarmWithSerialization {
 		
 		System.out.println("Started: " + Class.class.getName());
 		////////////////////////// MPP INIT////////////////////////////////
+		
+		MPPSkelLib mpp = null;
+		MppDistLib mppDist = null;
+		int numCores = 0;
+		int inputSize = 0;
+		int chunkSize = 0;
+		int farmWorkersSize = 0;
+		if (args.length == 7) {
+			numCores = Integer.parseInt(args[3]);
+			inputSize = Integer.parseInt(args[4]);
+			chunkSize = Integer.parseInt(args[5]);
+			farmWorkersSize = Integer.parseInt(args[6]);
+			System.out.println("inputSize: " + inputSize);
+			System.out.println("chunkSize: " + chunkSize);
 
-		MppDistLib mppDist = new MppDistLib(args);
+			if (numCores <= Runtime.getRuntime().availableProcessors() && numCores >= 2) {
+				mpp = new MPPSkelLib(numCores);
+				mppDist = new MppDistLib(args);
+			} else {
+				System.err.println("Invalid number of processors!");
+				System.exit(-2);
+			}
+			if (chunkSize > inputSize || inputSize % chunkSize != 0) {
+				System.err.println(
+						"Invalid chunk size -- inputSize should greater than 0 and be evenly divisible by chunkSize!");
+				System.exit(-3);
+			}
+			if (farmWorkersSize > numCores || farmWorkersSize < 2) {
+				System.err
+						.println("Invalid farm worker size -- should be less than number of cores and greater than 2!");
+				System.exit(-4);
+			}
+		} else {
+			System.err.println("Invalid number of arguments!");
+			System.exit(-1);
+		}
+				
 		double startTime = 0;
 		int rank = mppDist.getRankOfCurrentProcess();
 		int size = mppDist.getNumberOfProcesses();
-		int workerInputSize = 10000000;
+		int workerInputSize = inputSize;
 		// 20 million values to be split amongst both workers
 		List<Integer> globalInput = new ArrayList<>(workerInputSize * size);
 		// create array for input
@@ -58,7 +93,7 @@ public class MPPDistFarmWithSerialization {
 		List<Object> inputBuf = Arrays.asList(inputBufArr);
 
 		// Skeleton library computation
-		List<Object> result = mppRun(inputBuf, rank);
+		List<Object> result = mppRun(inputBuf, rank, chunkSize);
 		Object[] resultArr = result.toArray();
 		Object[] finalResult = new Object[workerInputSize * size];
 		
@@ -80,15 +115,16 @@ public class MPPDistFarmWithSerialization {
 
 	}
 
-	public static List<Object> mppRun(List<Object> inputBuf, int rank) {
+	public static List<Object> mppRun(List<Object> inputBuf, int rank, int chunkSize) {
 		////////////////////////// MPP ////////////////////////////////////
 
 		// Initialise MPP library
 		MPPSkelLib mpp = new MPPSkelLib();
-		List<Object> result = new ArrayList<>();
+		Object result = null;
+		List<Object> resultList = new ArrayList<>();
 		List<Object> workerInput = inputBuf;
 		System.out.println("Process: " + rank + " input size: " + workerInput.size());
-		List<List<Object>> chunkedInput = generateChunkedInput(workerInput);
+		List<List<Object>> chunkedInput = generateChunkedInput(workerInput, chunkSize);
 		// System.out.println("Chunked Input Size = " + chunkedInput.size());
 		long startTime;
 		long endTime;
@@ -112,6 +148,12 @@ public class MPPDistFarmWithSerialization {
 		Future<List<Object>> outputFuture = farm.submitData(chunkedInput);
 		try {
 			result = outputFuture.get();
+			if(result instanceof Exception) {
+				((Exception) result).printStackTrace();
+			}
+			else {
+				resultList = (List)result;
+			}
 			// System.out.println("Result size: " + result.size());
 			/*
 			 * endTime = System.currentTimeMillis();
@@ -132,7 +174,7 @@ public class MPPDistFarmWithSerialization {
 		endTime = System.currentTimeMillis();
 		System.out.println("Thread Execution time Taken: " + (endTime - startTime));
 		System.out.println("FINISHED");
-		return result;
+		return resultList;
 	}
 
 	public static List<Integer> generate(int size) {
@@ -140,17 +182,16 @@ public class MPPDistFarmWithSerialization {
 		Random random = new Random();
 		List<Integer> input = new ArrayList<>();
 		for (int i = 0; i < size; i++) {
-			input.add(random.nextInt());
+			input.add(26);
 		}
 		return input;
 	}
 
-	public static List<List<Object>> generateChunkedInput(List<Object> input) {
+	public static List<List<Object>> generateChunkedInput(List<Object> input, int chunkSize) {
 		List<List<Object>> chunkedList = new ArrayList<>();
 		List<Object> sublist;
-		int chunkSize = 100000;
 		int chunks = input.size() / chunkSize;
-		// System.out.println("Chunks: " + chunks);
+		System.out.println("number of chunks: " + chunks);
 		int startIndex = 0;
 		int chunkCount = 0;
 		while (chunkCount != chunks) {
