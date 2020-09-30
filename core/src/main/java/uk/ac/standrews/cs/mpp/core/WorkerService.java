@@ -18,7 +18,8 @@ import uk.ac.standrews.cs.mpp.workers.TaskFuture;
 import uk.ac.standrews.cs.mpp.workers.Worker;
 
 /**
- * Utility class used by instances of {@link Worker} to perform various actions.
+ * Utility class used by instances of {@link Worker} to perform miscellaneous
+ * tasks
  * 
  * @author Gursher
  *
@@ -86,16 +87,15 @@ public class WorkerService {
 	 */
 	public static Collection fetchResult(Queue<Object> outputQueue) {
 		// only collect if result is not null
-		if(result!=null) {
+		if (result != null) {
 			for (Object o : outputQueue) {
 				result.add(o);
 			}
-		}
-		else {
+		} else {
 			// create empty List for result
 			result = new ArrayList<>();
 		}
-		
+
 		// resultFuture.setResult(result);
 		return result;
 	}

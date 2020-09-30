@@ -59,7 +59,7 @@ public class WorkScheduler<I, O> {
 			this.taskExecutor.execute(skeletonWorker);
 
 			return skeletonWorker.getSkelFuture();
-			
+
 		} catch (Exception e) {// Not necessary, only for safety's sake
 			e.printStackTrace();
 			return null;
