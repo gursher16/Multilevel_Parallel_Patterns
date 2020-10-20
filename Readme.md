@@ -37,8 +37,7 @@ Each stage in the pipeline can be performed in parallel for a given set of image
 		int height = inputParam.getHeight();
 		...	
 </code></pre>
-<p><br><br>
-Once we have out sequential portions of code, we need to nest it in the <code>SequentialOpSkeleton</code> which is one of the three <code>Skeleton</code> implementations currently supported by the library.</p>
+<p>Once we have out sequential portions of code, we need to nest it in the <code>SequentialOpSkeleton</code> which is one of the three <code>Skeleton</code> implementations currently supported by the library.</p>
 <pre><code>Skeleton stage1 = new SequentialOpSkeleton&lt;BufferedImage, double[][][]&gt;(o1, double[][][].class);
 Skeleton stage2 = new SequentialOpSkeleton&lt;double[][][], double[][]&gt;(o2, double[][].class);
 ...
